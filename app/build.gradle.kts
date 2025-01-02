@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("com.google.devtools.ksp")
+
 }
 
 android {
@@ -38,6 +40,7 @@ android {
     }
     buildFeatures{
         viewBinding = true
+        dataBinding = true
     }
 }
 
@@ -51,6 +54,33 @@ dependencies {
     implementation(libs.wear)
     implementation(libs.databinding.compiler.common)
     implementation(libs.room.common)
+
+    implementation ("androidx.room:room-runtime:2.5.0")
+    implementation ("androidx.room:room-paging:2.5.0")
+    implementation ("androidx.room:room-ktx:2.5.0")
+    ksp("androidx.room:room-compiler:2.5.0")
+
+
+
+
+    //VIEW MODEL & LIVE DATA
+    //noinspection GradleDependency
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.1")
+    implementation("androidx.lifecycle:lifecycle-extensions:2.2.0")
+    //noinspection GradleDependency
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1")
+
+    //RX JAVA
+    implementation("io.reactivex.rxjava3:rxjava:2.5.0")
+
+
+    implementation("io.reactivex.rxjava3:rxandroid:3.0.0")
+
+    //TEST
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
+
 
 
 }

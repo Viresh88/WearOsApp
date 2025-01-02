@@ -1,12 +1,36 @@
 package com.example.wearosapp.base
 
 import android.bluetooth.BluetoothDevice
-import android.databinding.tool.writer.ViewBinding
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.viewbinding.ViewBinding
 import androidx.fragment.app.Fragment
 import com.example.wearosapp.inteface.bluetooth.BluetoothEventCallback
 
 
-class BaseFragment<T : ViewBinding> : Fragment(), BluetoothEventCallback {
+abstract class BaseFragment<T : ViewBinding> : Fragment(), BluetoothEventCallback {
+
+      var bindingT : T? =null
+      protected val binding: T
+          get() = binding!!
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        bindingT = createBinding(inflater, container)
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View , savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        create(savedInstanceState)
+        BluetoothManagerClass.addBleInfoCallback(this)
+    }
+
     override fun onScanning(bluetoothDevice: BluetoothDevice) {
         TODO("Not yet implemented")
     }
@@ -38,5 +62,7 @@ class BaseFragment<T : ViewBinding> : Fragment(), BluetoothEventCallback {
     override fun onScanFailed(errorCode: Int) {
         TODO("Not yet implemented")
     }
+
+    abstract fun createBinding(inflater: LayoutInflater , container: ViewGroup?): T
 
 }
