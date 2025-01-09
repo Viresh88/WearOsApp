@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="nav_header_vertical_spacing">8dp</dimen>
+    <dimen name="nav_header_height">176dp</dimen>
+    <dimen name="fab_margin">20dp</dimen>
+    <dimen name="dog_compass_view_height">270dp</dimen>
+    <dimen name="text_compass_angle">20sp</dimen>
+    <dimen name="pointerLength">10dp</dimen>
+    <dimen name="logo_width">250dp</dimen>
+    <dimen name="logo_height">250dp</dimen>
+    <dimen name="margin_end_logo">30dp</dimen>
+    <dimen name="margin_end_stimulation">55dp</dimen>
+    <dimen name="vibration_training_width">80dp</dimen>
+    <dimen name="vibration_training_height">80dp</dimen>
+    <dimen name="shock_training_width">80dp</dimen>
+    <dimen name="shock_training_height">80dp</dimen>
+    <dimen name="textView_stimulation_size">16sp</dimen>
+    <dimen name="textView_vibrations_training_size">14sp</dimen>
+    <dimen name="textView_stimulation_training_size">14sp</dimen>
+    <dimen name="image_logo_padding">0dp</dimen>
+    <dimen name="clearCache_setting_size">15sp</dimen>
+    <dimen name="userManual_setting_size">15sp</dimen>
+    <dimen name="aboutus_setting_size">15sp</dimen>
+    <dimen name="keep_in_touch_setting_size">20sp</dimen>
+    <dimen name="useful_number_setting_size">15sp</dimen>
+    <dimen name="padding_setting_size">10dp</dimen>
+    <dimen name="textview_net_about_size">20sp</dimen>
+    <dimen name="activated_bluetooth_size">21sp</dimen>
+    <dimen name="analyse_bottom_size">14sp</dimen>
+    <dimen name="activity_horizontal_margin_new">8dp</dimen>
+    <dimen name="activity_vertical_margin_new">8dp</dimen>
+</resources>

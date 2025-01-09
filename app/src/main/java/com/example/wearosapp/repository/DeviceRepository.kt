@@ -4,7 +4,7 @@ import com.example.wearosapp.databasedao.DeviceDao
 import com.example.wearosapp.model.Device
 import kotlinx.coroutines.flow.Flow
 
-class DeviceRepository(private var deviceDao: DeviceDao) {
+class DeviceRepository(private var deviceDao: DeviceDao?) {
     private val allDevices : Flow<List<Device>>? = deviceDao?.allDevices
 
     suspend fun createDevice(device: Device?) {

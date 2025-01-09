@@ -1,6 +1,7 @@
 package com.example.wearosapp.expension
 
 import android.util.Log
+import com.example.wearosapp.BuildConfig
 
 
 fun Any.myLog(msg: String) {

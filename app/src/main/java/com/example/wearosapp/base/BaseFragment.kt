@@ -5,8 +5,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.LocaleListCompat.create
 import androidx.viewbinding.ViewBinding
 import androidx.fragment.app.Fragment
+import com.example.wearosapp.bluetooth.BluetoothManagerClass
 import com.example.wearosapp.inteface.bluetooth.BluetoothEventCallback
 
 
@@ -30,6 +32,8 @@ abstract class BaseFragment<T : ViewBinding> : Fragment(), BluetoothEventCallbac
         create(savedInstanceState)
         BluetoothManagerClass.addBleInfoCallback(this)
     }
+
+    abstract fun create(savedInstanceState: Bundle?)
 
     override fun onScanning(bluetoothDevice: BluetoothDevice) {
         TODO("Not yet implemented")

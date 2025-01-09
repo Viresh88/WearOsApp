@@ -5,4 +5,8 @@
     <color name="light_orange">#FF6640</color>
     <color name="grey_light">#DADADA</color>
     <color name="black">#121111</color>
+    <color name="light_grey">#E7E7E7</color>
+    <color name="grey">#B6B6B6</color>
+    <color name="grey_pastel">#5A5A5A</color>
+    <color name="grey_line_color">#AAAAAA</color>
 </resources>

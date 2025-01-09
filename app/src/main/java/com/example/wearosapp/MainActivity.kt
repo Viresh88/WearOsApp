@@ -1,10 +1,10 @@
 package com.example.wearosapp
 
-import android.app.Activity
 import android.os.Bundle
 import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import com.example.wearosapp.fragment.FragmentBluetooth
 
 
 class MainActivity : AppCompatActivity() {
