@@ -9,6 +9,10 @@ plugins {
 
 android {
 
+    packagingOptions {
+        resources.excludes.add("META-INF/*")
+    }
+
     namespace = "com.example.wearosapp"
     compileSdk = 34
 
@@ -45,6 +49,8 @@ android {
         viewBinding = true
         dataBinding = true
     }
+
+
 
 }
 
