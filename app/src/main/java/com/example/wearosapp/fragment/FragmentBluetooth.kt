@@ -16,8 +16,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.widget.AppCompatButton
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.ViewModelProvider
@@ -91,6 +93,19 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
         configureViewModel()
         updateCollarInData()
         getBleStarted()
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val btn = view.findViewById<AppCompatButton>(R.id.analyse_bottom)
+        btn.setOnClickListener {
+            val compassFragment = FragmentCompass()
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, compassFragment)
+                .addToBackStack(null)
+                .commit()
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -488,10 +503,10 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
     private fun getBleStarted() {
         if (!bluetoothAdapter.isEnabled) {
             binding.textBluetooth.text = getString(R.string.text_bluetooth)
-            binding.textBluetooth.textSize = 17F
+            binding.textBluetooth.textSize = 6F
         } else {
             binding.textBluetooth.text = getString(R.string.bluetooth_pairing_requested)
-            binding.textBluetooth.textSize = 19F
+            binding.textBluetooth.textSize = 6F
         }
     }
 

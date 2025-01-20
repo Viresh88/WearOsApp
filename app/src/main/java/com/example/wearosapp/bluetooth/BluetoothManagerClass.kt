@@ -32,7 +32,7 @@ import java.util.concurrent.ConcurrentHashMap
 @SuppressLint("MissingPermission" , "StaticFieldLeak")
 object BluetoothManagerClass {
 
-    private lateinit var context: Context
+    private lateinit var context : Context
     private var password: String = ""
     private val UUID_SERVICE = UUID.fromString("0000AB00-0000-1000-8000-00805F9B34FB")
     private val UUID_NOTIFY = UUID.fromString("0000AB02-0000-1000-8000-00805F9B34FB")

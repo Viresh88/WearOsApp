@@ -70,10 +70,11 @@ dependencies {
     implementation("androidx.room:room-paging:2.5.0")
     implementation("androidx.room:room-ktx:2.5.0")
     implementation(libs.foundation.android)
-    implementation(libs.mediation.test.suite)
     implementation(libs.play.services.maps)
     ksp("androidx.room:room-compiler:2.5.0")
     implementation("androidx.palette:palette-ktx:1.0.0")
+
+
 
 
     //VIEW MODEL & LIVE DATA

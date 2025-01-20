@@ -1,22 +1,25 @@
 package com.example.wearosapp.base
 
+import android.app.Activity
 import android.bluetooth.BluetoothDevice
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.LocaleListCompat.create
 import androidx.viewbinding.ViewBinding
 import androidx.fragment.app.Fragment
+import com.example.wearosapp.MainActivity
 import com.example.wearosapp.bluetooth.BluetoothManagerClass
 import com.example.wearosapp.inteface.bluetooth.BluetoothEventCallback
 
 
 abstract class BaseFragment<T : ViewBinding> : Fragment(), BluetoothEventCallback {
 
-      var bindingT : T? =null
-      protected val binding: T
-          get() = binding!!
+    var bindingT: T? = null
+    protected val binding : T
+        get() = bindingT!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -27,46 +30,41 @@ abstract class BaseFragment<T : ViewBinding> : Fragment(), BluetoothEventCallbac
         return binding.root
     }
 
-    override fun onViewCreated(view: View , savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         create(savedInstanceState)
         BluetoothManagerClass.addBleInfoCallback(this)
     }
 
     abstract fun create(savedInstanceState: Bundle?)
-
-    override fun onScanning(bluetoothDevice: BluetoothDevice) {
-        TODO("Not yet implemented")
-    }
-
-    override fun onScanStarted() {
-        TODO("Not yet implemented")
-    }
-
-    override fun onScanFinished() {
-        TODO("Not yet implemented")
-    }
-
-    override fun onStartConnect(mac: String) {
-        TODO("Not yet implemented")
-    }
-
-    override fun onConnectSuccess(bleDevice: BluetoothDevice?) {
-        TODO("Not yet implemented")
-    }
-
-    override fun onConnectDeviceSuccess(bleDevice: BluetoothDevice?) {
-        TODO("Not yet implemented")
-    }
-
-    override fun onPasswordIncorrect() {
-        TODO("Not yet implemented")
-    }
-
-    override fun onScanFailed(errorCode: Int) {
-        TODO("Not yet implemented")
-    }
-
     abstract fun createBinding(inflater: LayoutInflater , container: ViewGroup?): T
+    override fun onScanning(bluetoothDevice: BluetoothDevice) {}
+    override fun onScanStarted() {}
+    override fun onScanFinished() {}
+    override fun onStartConnect(mac: String) {}
+    override fun onConnectSuccess(bleDevice: BluetoothDevice?) {}
+    override fun onConnectDeviceSuccess(bleDevice: BluetoothDevice?) {}
+    override fun onPasswordIncorrect() {}
+
+    override fun onScanFailed(errorCode: Int) {}
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is Activity) {
+            context as MainActivity
+        } else {
+            throw IllegalStateException("The attached context is not of the expected activity type.")
+        }
+    }
+
+    fun startActivity(clazz: Class<out Activity>) {
+        val intent = Intent(requireActivity(), clazz)
+        startActivity(intent)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        BluetoothManagerClass.removeBleInfoCallback(this)
+    }
 
 }
