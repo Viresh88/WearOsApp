@@ -31,4 +31,23 @@
     <dimen name="analyse_bottom_size">14sp</dimen>
     <dimen name="activity_horizontal_margin_new">8dp</dimen>
     <dimen name="activity_vertical_margin_new">8dp</dimen>
+
+    <dimen name="screen_padding">8dp</dimen>
+    <dimen name="title_margin">16dp</dimen>
+    <dimen name="title_padding">12dp</dimen>
+    <dimen name="status_margin_top">8dp</dimen>
+    <dimen name="status_padding">8dp</dimen>
+    <dimen name="button_margin_top">8dp</dimen>
+    <dimen name="list_margin_top">8dp</dimen>
+    <dimen name="list_padding">4dp</dimen>
+
+    <dimen name="wear_inset_padding">10dp</dimen>
+
+    <color name="wear_background">#000000</color>
+    <color name="light_orange">#FFA500</color>
+    <color name="grey_line_color">#888888</color>
+    <dimen name="compass_margin">16dp</dimen>
+    <dimen name="list_margin">8dp</dimen>
+    <dimen name="list_bottom_padding">16dp</dimen>
+    <dimen name="rotation_text_size">14sp</dimen>
 </resources>

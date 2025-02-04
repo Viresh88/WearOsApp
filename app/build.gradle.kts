@@ -71,6 +71,7 @@ dependencies {
     implementation("androidx.room:room-ktx:2.5.0")
     implementation(libs.foundation.android)
     implementation(libs.play.services.maps)
+    implementation(libs.ui.test.android)
     ksp("androidx.room:room-compiler:2.5.0")
     implementation("androidx.palette:palette-ktx:1.0.0")
 
@@ -110,6 +111,10 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
+
+
+    implementation("androidx.cardview:cardview:1.0.0")
+
 }
 
 

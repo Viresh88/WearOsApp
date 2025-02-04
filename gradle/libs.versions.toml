@@ -14,6 +14,7 @@ roomCommon = "2.6.1"
 foundationAndroid = "1.7.6"
 mediationTestSuite = "3.0.0"
 playServicesMaps = "19.0.0"
+uiTestAndroid = "1.7.7"
 
 [libraries]
 material-v110alpha05 = { module = "com.google.android.material:material", version.ref = "materialVersion" }
@@ -30,6 +31,7 @@ room-common = { group = "androidx.room", name = "room-common", version.ref = "ro
 foundation-android = { group = "androidx.compose.foundation", name = "foundation-android", version.ref = "foundationAndroid" }
 mediation-test-suite = { group = "com.google.android.ads", name = "mediation-test-suite", version.ref = "mediationTestSuite" }
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
+ui-test-android = { group = "androidx.compose.ui", name = "ui-test-android", version.ref = "uiTestAndroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

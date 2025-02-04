@@ -8,179 +8,220 @@ import android.graphics.Path
 import android.graphics.Rect
 import android.graphics.RectF
 import android.util.AttributeSet
+import android.view.WindowInsets
 import androidx.core.content.ContextCompat
+import androidx.wear.widget.BoxInsetLayout
 import com.example.wearosapp.R
 import com.example.wearosapp.expension.dp2px
 import com.example.wearosapp.model.Dog
+import kotlin.math.min
 
 class DogCompassView : CompassView {
-
     private var pointNorthTriangleLength = 0F
     private var pointNorthTrianglePath = Path()
     private var pointerPath = Path()
-    private var selectHeight = 0F
-    private var selectWidth = 0F
-    private var selectSum = 0
     private var centerCircleR = 0F
     private var rayon = 0F
     private var cx = 0F
     private var cy = 0F
-    private var circonference = 0F
-    private var textX = 0F
-    private var textY = 0F
-    private var bitmapRect = Rect()
     private var dogs = emptyList<Dog>()
 
+    // Scaled dimensions for Wear OS
+    private var scaleMarkerLength = 0F
+    private var scaleTextSize = 0F
+    private var iconSize = 0F
+    private var pointerLength = 0F
 
-    private var paint = Paint().apply {
+    private val paint = Paint().apply {
         isAntiAlias = true
         color = Color.RED
-        strokeWidth = dp2px(2).toFloat()
+        strokeWidth = dp2px(2).toFloat() // Reduced stroke width for better appearance
         style = Paint.Style.STROKE
         textAlign = Paint.Align.CENTER
-        textSize = dp2px(19).toFloat()
     }
 
     constructor(context: Context) : super(context)
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs)
 
+    override fun onApplyWindowInsets(insets: WindowInsets): WindowInsets {
+        // Handle insets for round/square screens
+        if (insets.isRound) {
+            setPadding(
+                resources.getDimensionPixelSize(R.dimen.wear_inset_padding),
+                resources.getDimensionPixelSize(R.dimen.wear_inset_padding),
+                resources.getDimensionPixelSize(R.dimen.wear_inset_padding),
+                resources.getDimensionPixelSize(R.dimen.wear_inset_padding)
+            )
+        }
+        return insets
+    }
+
     override fun drawContent(canvas: Canvas) {
-        canvas.drawColor(Color.parseColor("#FFFFFF"))
+        // Clear background with system color
+//        canvas.drawColor(ContextCompat.getColor(context, R.color.wear_background))
+
+        // Draw components
         drawScale(canvas)
         drawPointNorthTriangle(canvas)
-        drawPointerPath(canvas)
+        drawDogPointers(canvas)
         drawCenterCircle(canvas)
     }
 
-    private fun drawPointerPath(canvas: Canvas) {
-        dogs.forEachIndexed { _ , dog ->
+    private fun drawDogPointers(canvas: Canvas) {
+        dogs.forEach { dog ->
             canvas.save()
             canvas.rotate(dog.angle, cx, cy)
-            val dogIconBitmap = dog.getDogIconBitmap(context)
-            if (dogIconBitmap != null) {
-                val dogIconWidth = dogIconBitmap.width
-                val dogIconHeight = dogIconBitmap.height
-                val iconLeft = cx - dogIconWidth / 2F
-                val iconTop = pointNorthTriangleLength + selectHeight
-                val iconRight = cx + dogIconWidth / 2F
-                val iconBottom = iconTop + dogIconHeight
 
-                canvas.drawBitmap(dogIconBitmap, null, RectF(iconLeft, iconTop, iconRight, iconBottom) , paint)
+            val dogIconBitmap = dog.getDogIconBitmap(context)
+            dogIconBitmap?.let { bitmap ->
+                // Scale icon size based on screen size
+                val scaledSize = iconSize.toInt()
+                val iconLeft = cx - scaledSize / 2
+                val iconTop = pointNorthTriangleLength + scaleMarkerLength
+
+                canvas.drawBitmap(
+                    bitmap,
+                    null,
+                    RectF(
+                        iconLeft,
+                        iconTop,
+                        iconLeft + scaledSize,
+                        iconTop + scaledSize
+                    ),
+                    paint
+                )
+
                 if (dog.isSelected) {
-                    val pointerLength = selectHeight + dogIconHeight + context.resources.getDimension(R.dimen.pointerLength)
-                    val pointerColor = dog.getDominantColor(context)
-                    paint.color = pointerColor
-                    val pointerPath = Path()
-                    pointerPath.moveTo(cx - 8F, cy)
-                    pointerPath.lineTo(cx + 8F, cy)
-                    pointerPath.lineTo(cx, cy - pointerLength)
-                    pointerPath.close()
-                    canvas.drawPath(pointerPath, paint)
+                    drawSelectedPointer(canvas, dog, iconTop + scaledSize)
                 }
             }
-
             canvas.restore()
         }
     }
 
+    private fun drawSelectedPointer(canvas: Canvas, dog: Dog, startY: Float) {
+        paint.apply {
+            color = dog.getDominantColor(context)
+            style = Paint.Style.FILL
+        }
+
+        val pointerPath = Path().apply {
+            moveTo(cx - 6f, startY)
+            lineTo(cx + 6f, startY)
+            lineTo(cx, startY + pointerLength)
+            close()
+        }
+        canvas.drawPath(pointerPath, paint)
+        paint.style = Paint.Style.STROKE
+    }
+
     private fun drawCenterCircle(canvas: Canvas) {
-        paint.color = Color.parseColor("#B6B6B6")
+        paint.apply {
+            color = Color.parseColor("#B6B6B6")
+            style = Paint.Style.FILL
+        }
         canvas.drawCircle(cx, cy, centerCircleR, paint)
+        paint.style = Paint.Style.STROKE
     }
 
     private fun drawPointNorthTriangle(canvas: Canvas) {
-        paint.strokeWidth = selectWidth
-        paint.color = Color.RED
-        paint.style = Paint.Style.FILL_AND_STROKE
+        paint.apply {
+            color = Color.RED
+            style = Paint.Style.FILL_AND_STROKE
+        }
         canvas.drawPath(pointNorthTrianglePath, paint)
     }
 
     private fun drawScale(canvas: Canvas) {
-        for (i in 0 until selectSum) {
-            val currentAngle = (i * (360 / selectSum)).toFloat()
-            paint.color = ContextCompat.getColor(context, R.color.light_orange)
+        paint.textSize = scaleTextSize
+
+        for (i in 0 until 360 step 3) {
+            val currentAngle = i.toFloat()
             canvas.save()
             canvas.rotate(currentAngle, cx, cy)
 
-            val text = when (currentAngle) {
-                0F -> "N"
-                90F -> "E"
-                180F -> "S"
-                270F -> "W"
-                else -> ""
-            }
-
-            if (currentAngle % 30F == 0F) {
-                canvas.drawText(text, textX, textY, paint)
-                canvas.drawLine(
-                    cx,
-                    pointNorthTriangleLength,
-                    cx,
-                    pointNorthTriangleLength + selectHeight,
-                    paint
-                )
-            } else {
-                paint.color = ContextCompat.getColor(context, R.color.grey_line_color)
-                canvas.drawLine(
-                    cx,
-                    pointNorthTriangleLength,
-                    cx,
-                    pointNorthTriangleLength + selectHeight / 5 * 2,
-                    paint
-                )
+            when {
+                currentAngle % 90 == 0f -> drawCardinalDirection(canvas, currentAngle)
+                currentAngle % 30 == 0f -> drawMajorTick(canvas)
+                else -> drawMinorTick(canvas)
             }
 
             canvas.restore()
         }
     }
 
+    private fun drawCardinalDirection(canvas: Canvas, angle: Float) {
+        val direction = when (angle) {
+            0f -> "N"
+            90f -> "E"
+            180f -> "S"
+            270f -> "W"
+            else -> ""
+        }
+
+        paint.apply {
+            color = ContextCompat.getColor(context, R.color.light_orange)
+            style = Paint.Style.FILL
+        }
+
+        canvas.drawText(
+            direction,
+            cx,
+            pointNorthTriangleLength + scaleMarkerLength + scaleTextSize * 1.5f,
+            paint
+        )
+        canvas.drawLine(cx, pointNorthTriangleLength, cx, pointNorthTriangleLength + scaleMarkerLength, paint)
+    }
+
+    private fun drawMajorTick(canvas: Canvas) {
+        paint.color = ContextCompat.getColor(context, R.color.light_orange)
+        canvas.drawLine(
+            cx,
+            pointNorthTriangleLength,
+            cx,
+            pointNorthTriangleLength + scaleMarkerLength,
+            paint
+        )
+    }
+
+    private fun drawMinorTick(canvas: Canvas) {
+        paint.color = ContextCompat.getColor(context, R.color.grey_line_color)
+        canvas.drawLine(
+            cx,
+            pointNorthTriangleLength,
+            cx,
+            pointNorthTriangleLength + scaleMarkerLength * 0.4f,
+            paint
+        )
+    }
+
     override fun windowChangeAngle(width: Int, height: Int) {
-        cx = width / 2F
-        cy = height / 2F
-        rayon = width.coerceAtMost(height).toFloat()
-        circonference = (2 * Math.PI * rayon).toFloat()
-        pointNorthTriangleLength = dp2px(22).toFloat()
-        pointNorthTrianglePath.moveTo(cx, pointNorthTriangleLength / 5 * 1)
-        pointNorthTrianglePath.lineTo(
-            cx - pointNorthTriangleLength / 2,
-            pointNorthTriangleLength / 5 * 4
-        )
-        pointNorthTrianglePath.lineTo(
-            cx + pointNorthTriangleLength / 2,
-            pointNorthTriangleLength / 5 * 4
-        )
+        // Calculate dimensions based on screen size
+        val minDimension = min(width, height).toFloat()
+        cx = width / 2f
+        cy = height / 2f
+        rayon = minDimension / 2f
 
-        selectSum = 360 / 3
-        selectWidth = circonference / selectSum * 0.11F
-        selectHeight = dp2px(18).toFloat()
-        textX = cx
-        textY = pointNorthTriangleLength + selectHeight + paint.textSize
-        centerCircleR = dp2px(8).toFloat()
+        // Scale UI elements based on screen size
+        pointNorthTriangleLength = minDimension * 0.08f
+        scaleMarkerLength = minDimension * 0.06f
+        scaleTextSize = minDimension * 0.07f
+        iconSize = minDimension * 0.12f
+        pointerLength = minDimension * 0.08f
+        centerCircleR = minDimension * 0.03f
 
-        if (dogs.isNotEmpty()) {
-            val firstDog = dogs[0]
-            val dogIconBitmap = firstDog.getDogIconBitmap(context)
-            if (dogIconBitmap != null) {
-                val dogIconWidth = dogIconBitmap.width
-                val dogIconHeight = dogIconBitmap.height
-                val iconTop = pointNorthTriangleLength + selectHeight
-                val iconBottom = iconTop + dogIconHeight
-                val iconLeft = cx - dogIconWidth / 2
-                val iconRight = cx + dogIconWidth / 2
-                bitmapRect.set(
-                    iconLeft.toInt() ,
-                    iconTop.toInt() ,
-                    iconRight.toInt() ,
-                    iconBottom.toInt()
-                )
-                pointerPath.moveTo(cx , iconBottom)
-                pointerPath.lineTo(cx - dp2px(6) , cy)
-                pointerPath.lineTo(cx + dp2px(6) , cy)
-            }
+        // Update north pointer path
+        pointNorthTrianglePath.apply {
+            reset()
+            moveTo(cx, pointNorthTriangleLength * 0.2f)
+            lineTo(cx - pointNorthTriangleLength * 0.5f, pointNorthTriangleLength * 0.8f)
+            lineTo(cx + pointNorthTriangleLength * 0.5f, pointNorthTriangleLength * 0.8f)
+            close()
         }
     }
 
     fun setDogPointer(dogs: List<Dog>) {
         this.dogs = dogs
+        invalidate()
     }
 }
