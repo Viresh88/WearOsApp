@@ -3,17 +3,21 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
-    android:layout_height="40dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:layout_marginVertical="4dp"
+    android:layout_marginStart="3dp"
+    android:layout_marginEnd="3dp"
     app:cardBackgroundColor="#FFFFFF"
-    app:cardCornerRadius="12dp">
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:padding="5dp">
 
+        <!-- Dog image on the left -->
         <ImageView
             android:id="@+id/dogImage"
             android:layout_width="40dp"
@@ -24,42 +28,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             tools:src="@tools:sample/avatars" />
 
-        <TextView
-            android:id="@+id/dogName"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:textColor="#333333"
-            android:textSize="8sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@id/dogImage"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/selectedCheck"
-            tools:text="Granger Doggie" />
-
-        <ProgressBar
-            android:id="@+id/beepProgress"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_marginTop="4dp"
-            android:progressTint="#4CAF50"
-            app:layout_constraintStart_toEndOf="@id/dogImage"
-            app:layout_constraintTop_toBottomOf="@id/dogName" />
-
-        <TextView
-            android:id="@+id/beepText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:textColor="#666666"
-            android:textSize="6sp"
-            app:layout_constraintStart_toEndOf="@id/beepProgress"
-            app:layout_constraintTop_toTopOf="@id/beepProgress"
-            app:layout_constraintBottom_toBottomOf="@id/beepProgress"
-            tools:text="Beep Sound" />
-
+        <!-- CheckBox on the right -->
         <CheckBox
             android:id="@+id/selectedCheck"
             android:layout_width="wrap_content"
@@ -68,6 +37,45 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
+
+        <!-- Dog name TextView -->
+        <TextView
+            android:id="@+id/dogName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:text="Granger Doggie"
+            android:textColor="#333333"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toEndOf="@id/dogImage"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Granger Doggie" />
+
+        <!-- Battery image (fixed size) -->
+        <ImageView
+            android:id="@+id/beepProgress"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginStart="5dp"
+            app:layout_constraintStart_toEndOf="@id/dogImage"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/dogName"
+            tools:src="@drawable/battery" />
+
+        <!-- Beep text label -->
+        <TextView
+            android:id="@+id/beepText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:text="100%"
+            android:textColor="#666666"
+            android:textSize="8sp"
+            app:layout_constraintStart_toEndOf="@id/beepProgress"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/dogName"
+            tools:text="Beep Sound" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

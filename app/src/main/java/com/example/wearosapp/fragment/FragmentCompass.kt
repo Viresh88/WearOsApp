@@ -63,24 +63,24 @@ class FragmentCompass : Fragment() {
     private fun getDemoDogs() = listOf(
         Dog2(
             id = 1,
-            name = "Granger Doggie",
+            name = "Granger",
             imageResId = R.drawable.dog,
-            beepProgress = 85,
-            beepSound = "Beep Sound"
+            beepProgress = R.drawable.battery,
+            beepSound = "100%"
         ),
         Dog2(
             id = 2,
             name = "Max",
             imageResId = R.drawable.dog,
-            beepProgress = 85,
-            beepSound = "Beep Sound"
+            beepProgress = R.drawable.battery,
+            beepSound = "100%"
         ),
         Dog2(
             id = 3,
             name = "Luna",
             imageResId = R.drawable.dog,
-            beepProgress = 92,
-            beepSound = "Beep Sound"
+            beepProgress = R.drawable.battery,
+            beepSound = "100%"
         )
     )
 }

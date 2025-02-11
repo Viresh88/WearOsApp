@@ -402,7 +402,7 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
 
     private fun showInputDialog(onConfirm: (String) -> Unit) {
         val binding = DialogInputPasswordBinding.inflate(layoutInflater)
-        AlertDialog.Builder(requireContext() , R.style.AlertDialogCustom)
+        AlertDialog.Builder(requireContext() )
             .setView(binding.root)
             .setPositiveButton(R.string.confirm) { _ , _ ->
                 val passwordEditText = binding.pwdEditText.text.toString()
@@ -419,7 +419,7 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
 
     private fun getViewDialogues(): AlertDialog {
         dialogBinding = DialogueSettingsBluetoothBinding.inflate(layoutInflater)
-        val builder: AlertDialog.Builder = AlertDialog.Builder(requireContext(), R.style.AlertDialogCustom)
+        val builder: AlertDialog.Builder = AlertDialog.Builder(requireContext())
         builder.setView(dialogBinding.root)
         return builder.create()
     }

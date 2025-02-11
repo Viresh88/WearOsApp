@@ -40,14 +40,14 @@ class DogAdapter : RecyclerView.Adapter<DogAdapter.DogViewHolder>() {
     inner class DogViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val dogImage: ImageView = itemView.findViewById(R.id.dogImage)
         private val dogName: TextView = itemView.findViewById(R.id.dogName)
-        private val beepProgress: ProgressBar = itemView.findViewById(R.id.beepProgress)
+        private val beepProgress: ImageView = itemView.findViewById(R.id.beepProgress)
         private val beepText: TextView = itemView.findViewById(R.id.beepText)
         private val selectedCheck: CheckBox = itemView.findViewById(R.id.selectedCheck)
 
         fun bind(dog: Dog2) {
             dogImage.setImageResource(dog.imageResId)
             dogName.text = dog.name
-            beepProgress.progress = dog.beepProgress
+            beepProgress.setImageResource(dog.beepProgress)
             beepText.text = dog.beepSound
             selectedCheck.isChecked = dog.isSelected
 
