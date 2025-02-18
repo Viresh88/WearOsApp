@@ -7,17 +7,17 @@
     android:padding="8dp"
     android:layout_margin="5dp">
 
-
     <TextView
         android:id="@+id/text_bluetooth"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/ic_settings_style_textview_bluetooth"
+        android:background="@drawable/border_background"
         android:padding="4dp"
         android:textSize="6sp"
         android:layout_marginTop="10dp"
         android:textColor="@color/black"
         android:maxLines="1"
+        android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -52,24 +52,21 @@
         tools:ignore="TextContrastCheck"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="@id/activated_bluetooth"
-        app:layout_constraintTop_toTopOf="@id/activated_bluetooth"
-        />
+        app:layout_constraintTop_toTopOf="@id/activated_bluetooth" />
 
     <androidx.wear.widget.WearableRecyclerView
         android:id="@+id/recyclerView_bluetooth"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="50dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="5dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/activated_bluetooth"/>
-
-
-
-
-
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/activated_bluetooth"
+        app:layout_constraintVertical_bias="0.0" />
 
     <ProgressBar
         android:id="@+id/progressBar_bluetooth"
@@ -83,10 +80,4 @@
         android:indeterminate="true"
         android:indeterminateTintMode="src_atop"
         android:indeterminateTint="@color/light_orange"/>
-
-
-
-
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

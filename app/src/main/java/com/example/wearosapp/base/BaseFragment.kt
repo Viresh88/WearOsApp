@@ -18,7 +18,7 @@ import com.example.wearosapp.inteface.bluetooth.BluetoothEventCallback
 abstract class BaseFragment<T : ViewBinding> : Fragment(), BluetoothEventCallback {
 
     var bindingT: T? = null
-    protected val binding : T
+    protected open val binding : T
         get() = bindingT!!
 
     override fun onCreateView(

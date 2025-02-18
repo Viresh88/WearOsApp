@@ -25,6 +25,5 @@ class MainActivity : AppCompatActivity() {
                 .replace(R.id.fragment_container, FragmentBluetooth())
                 .commit()
         }
-
     }
 }

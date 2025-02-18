@@ -58,3 +58,4 @@ class DogAdapter : RecyclerView.Adapter<DogAdapter.DogViewHolder>() {
         }
     }
 }
+

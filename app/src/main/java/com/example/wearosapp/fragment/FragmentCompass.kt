@@ -54,9 +54,7 @@ class FragmentCompass : Fragment() {
         }
         dogAdapter.setDogs(getDemoDogs())
 
-
         return view
-
 
     }
 

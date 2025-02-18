@@ -11,7 +11,6 @@ import com.example.wearosapp.model.Dog
 @Dao
 interface DogDao {
 
-
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertNewDog(dog: Dog)
 

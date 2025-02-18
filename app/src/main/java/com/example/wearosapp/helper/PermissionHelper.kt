@@ -21,14 +21,11 @@ class PermissionHelper(private val activity: Activity) {
     )
 
     fun checkPermissions(): Boolean {
-
         val requestedPermissions = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
             BLE_PERMISSIONS
         } else {
             ANDROID_12_BLE_PERMISSIONS
         }
-
-
         for (permission in requestedPermissions) {
             val permissionGranted = ContextCompat.checkSelfPermission(activity, permission) == PackageManager.PERMISSION_GRANTED
             if (!permissionGranted) {
@@ -37,12 +34,9 @@ class PermissionHelper(private val activity: Activity) {
                 }
                 return false
             }
-
         }
         return true
-
     }
-
 
     fun onRequestPermissionsResult(requestCode: Int , grantResults: IntArray): Boolean {
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
@@ -55,9 +49,8 @@ class PermissionHelper(private val activity: Activity) {
         }
         return false
     }
-
     companion object {
         const val LOCATION_PERMISSION_REQUEST_CODE = 123
     }
-
 }
+
