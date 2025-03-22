@@ -3,15 +3,15 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="190dp"
-    android:layout_height="160dp"
-    android:padding="10dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:layout_gravity="center"
+    android:layout_margin="10dp"
     android:background="@drawable/border_background">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/imageView2"
@@ -26,12 +26,12 @@
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textView_bluetooth_title"
-            android:layout_width="158dp"
-            android:layout_height="22dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
             android:layout_marginTop="5dp"
             android:background="@drawable/style_track_add_fence"
             android:hint="@string/bluetooth"
-            android:minHeight="28dp"
             android:padding="3dp"
             android:textAlignment="center"
             android:textColor="#000000"
@@ -61,8 +61,9 @@
 
         <TextView
             android:id="@+id/textView_connected"
-            android:layout_width="160dp"
-            android:layout_height="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="7dp"
             android:layout_marginTop="5dp"
             android:background="@drawable/style_text_dialog_ble"
             android:padding="3dp"
@@ -76,8 +77,9 @@
 
         <TextView
             android:id="@+id/textView_disconnected"
-            android:layout_width="160dp"
-            android:layout_height="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="7dp"
             android:layout_marginTop="2dp"
             android:background="@color/light_grey"
             android:padding="3dp"
@@ -91,8 +93,9 @@
 
         <TextView
             android:id="@+id/textView_delete_bluetooth"
-            android:layout_width="160dp"
-            android:layout_height="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="7dp"
             android:layout_marginTop="4dp"
             android:background="@drawable/style_dialog_text_down"
             android:padding="3dp"
