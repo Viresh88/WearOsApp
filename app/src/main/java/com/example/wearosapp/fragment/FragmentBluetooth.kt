@@ -99,18 +99,7 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
 
 
         // For demonstration, add demo devices (replace with actual scan results later)
-        fun configureViewModel() {
-            val modelFactory = Injection.provideViewModelFactory(requireContext())
-            viewModel = ViewModelProvider(this, modelFactory)[DogViewModel::class.java]
 
-            // Observe LiveData from ViewModel to update the list
-            viewModel?.getAllDevices()?.observe(viewLifecycleOwner) { devices ->
-                scanResults.clear()
-                devices?.let { scanResults.addAll(it) }
-                bluetoothAdapterDevice?.setDevices(scanResults)
-                bluetoothAdapterDevice?.notifyDataSetChanged()
-            }
-        }
 
         viewModel?.getAllDevices()?.observe(viewLifecycleOwner) { devices ->
             scanResults.clear()
@@ -158,8 +147,15 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
     private fun configureViewModel() {
         val modelFactory = Injection.provideViewModelFactory(requireContext())
         viewModel = ViewModelProvider(this, modelFactory)[DogViewModel::class.java]
-    }
 
+        // Observe LiveData from ViewModel to update the list
+        viewModel?.getAllDevices()?.observe(viewLifecycleOwner) { devices ->
+            scanResults.clear()
+            devices?.let { scanResults.addAll(it) }
+            bluetoothAdapterDevice?.setDevices(scanResults)
+            bluetoothAdapterDevice?.notifyDataSetChanged()
+        }
+    }
     private fun updateCollarInData() {
         viewModel?.getAllDevices()?.observe(viewLifecycleOwner) { data ->
             scanResults.clear()
@@ -352,7 +348,6 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
             bluetoothAdapterDevice?.notifyDataSetChanged()
         }
     }
-
 
     override fun onScanStarted() {
         requireActivity().runOnUiThread {
@@ -555,12 +550,10 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
         }
         BluetoothManagerClass.disconnect()
     }
-
     private fun returnToMainScreen() {
         val event = Move2MapFragmentEventBus.createEvent()
         EventBus.getDefault().post(event)
     }
-
     private fun getBleStarted() {
         if (!bluetoothAdapter.isEnabled) {
             binding.textBluetooth.text = getString(R.string.text_bluetooth)
@@ -570,21 +563,17 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
             binding.textBluetooth.textSize = 6F
         }
     }
-
     override fun onResume() {
         super.onResume()
         BluetoothManagerClass.addBleInfoCallback(this)
         stopScan()
         promptEnableBluetooth()
     }
-
     override fun onPause() {
         super.onPause()
         BluetoothManagerClass.removeBleInfoCallback(this)
     }
-
     companion object {
         const val ENABLE_BLUETOOTH_REQUEST_CODE = 1
     }
-
 }

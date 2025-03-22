@@ -7,7 +7,6 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCharacteristic
-import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanResult
@@ -17,7 +16,6 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import com.example.wearosapp.inteface.bluetooth.BluetoothEventCallback
-
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
@@ -69,7 +67,6 @@ object BluetoothManagerClass {
 //        stopScanAfterDelay()
 //    }
 
-
 fun startScan() {
     val bluetoothLeScanner = bluetoothAdapter.bluetoothLeScanner
     if (scanCallback == null) {
@@ -99,9 +96,6 @@ fun startScan() {
         scanCallback = null
         bluetoothEventCallbacks.forEach { it.onScanFinished() }
     }
-
-
-
 
     fun disconnect() {
         val gatt = bleDevice?.let { deviceGattMap[it] }
@@ -262,7 +256,6 @@ fun startScan() {
     fun sendChangePasswordCommand(newPassword: String) {
         val data = "Repwd#$newPassword\r\n"
         write(data.toByteArray())
-
     }
 
     fun writeData(data: String) {
