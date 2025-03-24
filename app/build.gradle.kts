@@ -67,6 +67,8 @@ dependencies {
     implementation(libs.foundation.android)
     implementation(libs.play.services.maps)
     implementation(libs.ui.test.android)
+    implementation(libs.androidthings)
+    implementation(libs.media3.common.ktx)
     ksp("androidx.room:room-compiler:2.5.0")
     implementation("androidx.palette:palette-ktx:1.0.0")
 

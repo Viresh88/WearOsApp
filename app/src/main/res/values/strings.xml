@@ -2,7 +2,7 @@
     <string name="app_name">wearOsApp</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="bluetooth">bluetooth\n</string>
+    <string name="bluetooth">Bluetooth\n</string>
 
     <!-- BLUETOOTH-->
     <string name="text_bluetooth">Activate Bluetooth and make sure that the Bluetooth of your Canicom GPS remote control is also activated</string>
@@ -17,7 +17,7 @@
     <string name="already_connect">You are already logged in</string>
 
     <string name="settings">Settings</string>
-    <string name="delete">delete\n</string>
+    <string name="delete">Delete</string>
     <string name="loading">loading\n\n</string>
     <string name="blue_not_supported">Bluetooth not supported</string>
     <string name="bluetooth_pairing_requested">Bluetooth pairing requested Canicom GPS</string>

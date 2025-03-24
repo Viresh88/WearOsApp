@@ -9,4 +9,8 @@
     <color name="grey_pastel">#5A5A5A</color>
     <color name="blue">#224A7E</color>
     <color name="green">#24A224</color>
+    <color name="wear_connected">#00C853</color>
+    <color name="wear_connecting">#FFD600</color>
+    <color name="wear_error">#DD2C00</color>
+    <color name="wear_disconnected">#9E9E9E</color>
 </resources>

@@ -15,6 +15,8 @@ foundationAndroid = "1.7.6"
 mediationTestSuite = "3.0.0"
 playServicesMaps = "19.0.0"
 uiTestAndroid = "1.7.7"
+androidthings = "1.0"
+media3CommonKtx = "1.5.1"
 
 [libraries]
 material-v110alpha05 = { module = "com.google.android.material:material", version.ref = "materialVersion" }
@@ -32,6 +34,8 @@ foundation-android = { group = "androidx.compose.foundation", name = "foundation
 mediation-test-suite = { group = "com.google.android.ads", name = "mediation-test-suite", version.ref = "mediationTestSuite" }
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
 ui-test-android = { group = "androidx.compose.ui", name = "ui-test-android", version.ref = "uiTestAndroid" }
+androidthings = { group = "com.google.android.things", name = "androidthings", version.ref = "androidthings" }
+media3-common-ktx = { group = "androidx.media3", name = "media3-common-ktx", version.ref = "media3CommonKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

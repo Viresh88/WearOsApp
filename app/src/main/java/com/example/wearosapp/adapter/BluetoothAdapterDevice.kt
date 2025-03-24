@@ -2,12 +2,10 @@ package com.example.wearosapp.adapter
 
 import android.graphics.Color
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.wearosapp.R
+import com.example.wearosapp.databinding.ItemBluetoothBinding
 import com.example.wearosapp.model.Device
 
 class BluetoothAdapterDevice(
@@ -22,27 +20,35 @@ class BluetoothAdapterDevice(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BluetoothViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_bluetooth, parent, false)
-        return BluetoothViewHolder(view)
+        val binding = ItemBluetoothBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return BluetoothViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: BluetoothViewHolder, position: Int) {
-        holder.bind(devices[position], position)
+        holder.bind(devices[position])
     }
 
     override fun getItemCount(): Int = devices.size
 
-    inner class BluetoothViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val bluetoothIcon: ImageView = itemView.findViewById(R.id.image_view_bluetooth)
-        private val deviceName: TextView = itemView.findViewById(R.id.deviceName)
-        private val connectStatus: TextView = itemView.findViewById(R.id.connectStatus)
-        private val settingsIcon: ImageView = itemView.findViewById(R.id.bluetooth_settings_icon)
+    inner class BluetoothViewHolder(private val binding: ItemBluetoothBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(device: Device, position: Int) {
-            val context = itemView.context
-            var statusText = ""
-            var color = ""
+        private var statusText = ""
+        private var color = ""
+
+        init {
+            // Set click listener on the entire item view.
+            binding.root.setOnClickListener {
+                itemClicked?.invoke(bindingAdapterPosition)
+            }
+            // Set click listener for the settings icon.
+            binding.bluetoothSettingsIcon.setOnClickListener {
+                parameterClicked?.invoke(bindingAdapterPosition)
+            }
+        }
+
+        fun bind(device: Device) {
+            val context = binding.root.context
 
             when (device.bluetoothStatus) {
                 context.getString(R.string.connect_fail) -> {
@@ -62,25 +68,20 @@ class BluetoothAdapterDevice(
                     color = "#000000"
                 }
                 else -> {
-                    // Optionally handle any other state
-                    statusText = device.bluetoothStatus.toString()
+                    statusText = device.bluetoothStatus ?: ""
+                    color = "#000000"
                 }
             }
 
-            deviceName.text = device.name ?: "Unnamed"
-            connectStatus.text = statusText
+            binding.deviceName.text = device.name ?: "Unnamed"
+            binding.connectStatus.text = statusText
 
             if (color.isNotEmpty()) {
-                bluetoothIcon.setColorFilter(Color.parseColor(color))
-                connectStatus.setTextColor(Color.parseColor(color))
-            }
-
-            itemView.setOnClickListener {
-                itemClicked?.invoke(position)
-            }
-            settingsIcon.setOnClickListener {
-                parameterClicked?.invoke(position)
+                binding.imageViewBluetooth.setColorFilter(Color.parseColor(color))
+                binding.connectStatus.setTextColor(Color.parseColor(color))
             }
         }
+
     }
+
 }
