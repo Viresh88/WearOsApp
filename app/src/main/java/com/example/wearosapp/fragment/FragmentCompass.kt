@@ -44,7 +44,6 @@ class FragmentCompass : Fragment() {
                 val selectedDogs = getDemoDogs().filter { it.isSelected }
 
             }
-
         }
 
         recyclerView.apply {
@@ -55,7 +54,6 @@ class FragmentCompass : Fragment() {
         dogAdapter.setDogs(getDemoDogs())
 
         return view
-
     }
 
     private fun getDemoDogs() = listOf(

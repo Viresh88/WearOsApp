@@ -23,7 +23,7 @@
 
                 <com.example.wearosapp.view.DogCompassView
                     android:id="@+id/dogCompassView"
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="0dp"
                     app:layout_constraintBottom_toTopOf="@+id/recyclerview_dog_compass"
                     app:layout_constraintDimensionRatio="1:1"

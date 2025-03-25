@@ -20,7 +20,7 @@
     <string name="delete">Delete</string>
     <string name="loading">loading\n\n</string>
     <string name="blue_not_supported">Bluetooth not supported</string>
-    <string name="bluetooth_pairing_requested">Bluetooth pairing requested Canicom GPS</string>
+    <string name="bluetooth_pairing_requested">Bluetooth pairing requested\n Canicom GPS</string>
     <string name="confirm">Confirm\n</string>
     <string name="_0">0°</string>
     <string name="dog_item">DOG</string>

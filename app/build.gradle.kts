@@ -69,6 +69,8 @@ dependencies {
     implementation(libs.ui.test.android)
     implementation(libs.androidthings)
     implementation(libs.media3.common.ktx)
+    implementation(libs.navigation.fragment.ktx)
+    implementation(libs.navigation.ui.ktx)
     ksp("androidx.room:room-compiler:2.5.0")
     implementation("androidx.palette:palette-ktx:1.0.0")
 
