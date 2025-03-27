@@ -89,6 +89,38 @@ data class Dog(
         return null
     }
 
+    fun getDogIconBitmapWithStatus(context: Context): Pair<Bitmap?, Int> {
+        // Determine the resource ID based on online status and dog status
+        val resourceId = if (isOnline) {
+            when (status) {
+                0 -> R.drawable.dog_sittings
+                1 -> R.drawable.dog_standing
+                2 -> R.drawable.dog_moving
+                3 -> R.drawable.dog_pointing
+                else -> R.drawable.dog_pointing
+            }
+        } else {
+            null
+        }
+
+        val drawable = resourceId?.let { ContextCompat.getDrawable(context, it) }
+
+        val grayColor = Color.GRAY
+        val tintColor = if (color == 0) grayColor else color
+
+        drawable?.let {
+            DrawableCompat.setTintList(it, ColorStateList.valueOf(tintColor))
+            val bitmap = drawable.toBitmap()
+
+            // Return both the bitmap and the status
+            return Pair(bitmap, status)
+        }
+
+        // Return null for bitmap and the status if drawable is null
+        return Pair(null, status)
+    }
+
+
     fun getDominantColor(context: Context): Int {
         val imeiHashCode = imei?.hashCode() ?: 0
         val random = Random(imeiHashCode)

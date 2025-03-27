@@ -25,6 +25,7 @@
     <string name="_0">0°</string>
     <string name="dog_item">DOG</string>
     <string name="battery_stat">0%</string>
+    <string name="battery">Battery : </string>
     <string name="distance">0m</string>
     <string name="date_time">date time</string>
     <string name="compass">compass\n</string>

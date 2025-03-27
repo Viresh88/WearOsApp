@@ -4,15 +4,21 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.example.wearosapp.bluetooth.BluetoothManagerClass
+import com.example.wearosapp.bluetooth.FormatCommand
 import com.example.wearosapp.eventbus.Move2MapFragmentEventBus
 import com.example.wearosapp.fragment.FragmentBluetooth
+import com.example.wearosapp.injection.Injection
+import com.example.wearosapp.injection.ViewModelFactory
+import com.example.wearosapp.viewmodel.DogViewModel
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
+    private var viewModel: DogViewModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,7 +28,7 @@ class MainActivity : AppCompatActivity() {
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
-
+        configureViewModel()
         BluetoothManagerClass.initializeBluetooth(this)
         window.decorView.systemUiVisibility =
             View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
@@ -48,6 +54,14 @@ class MainActivity : AppCompatActivity() {
         if (navController.currentDestination?.id != destinationId) {
             navController.navigate(destinationId)
         }
+    }
+
+    private fun configureViewModel() {
+        val modelFactory: ViewModelFactory = Injection.provideViewModelFactory(this)
+        viewModel = ViewModelProvider(this, modelFactory)[DogViewModel::class.java]
+        BluetoothManagerClass.initializeBluetooth(this)
+        viewModel?.let { FormatCommand.setViewModel(it) }
+        FormatCommand.setContext(this)
     }
 }
 

@@ -1,5 +1,7 @@
 package com.example.wearosapp.adapter
 
+import android.annotation.SuppressLint
+import android.location.Location
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,53 +11,81 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.wearosapp.R
+import com.example.wearosapp.databinding.ItemDogBinding
+import com.example.wearosapp.model.Dog
 import com.example.wearosapp.model.Dog2
+import java.text.SimpleDateFormat
+import java.util.Calendar
 
-class DogAdapter : RecyclerView.Adapter<DogAdapter.DogViewHolder>() {
 
-    private var dogs = listOf<Dog2>()
-    private var onDogSelectedListener: ((Dog2) -> Unit)? = null
+class DogAdapter(
+    private var dataDogList: MutableList<Dog>,
+    private val handleSave: (Dog) -> Unit
+) : RecyclerView.Adapter<DogAdapter.ViewHolder>() {
 
-    fun setDogs(newDogs: List<Dog2>) {
-        dogs = newDogs
-        notifyDataSetChanged()
+    override fun onCreateViewHolder(parent: ViewGroup , viewType: Int): ViewHolder {
+        val itemDogBinding =
+            ItemDogBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ViewHolder(itemDogBinding, handleSave)
     }
 
-    fun setOnDogSelectedListener(listener: (Dog2) -> Unit) {
-        onDogSelectedListener = listener
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val item = dataDogList[position]
+        holder.bind(item)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DogViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_dog, parent, false)
-        return DogViewHolder(view)
+    override fun getItemCount(): Int {
+        return dataDogList.size
     }
 
-    override fun onBindViewHolder(holder: DogViewHolder, position: Int) {
-        holder.bind(dogs[position])
-    }
+    inner class ViewHolder(
+        private val binding: ItemDogBinding,
+        private val handleSave: (Dog) -> Unit
+    ) : RecyclerView.ViewHolder(binding.root) {
 
-    override fun getItemCount() = dogs.size
 
-    inner class DogViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val dogImage: ImageView = itemView.findViewById(R.id.dogImage)
-        private val dogName: TextView = itemView.findViewById(R.id.dogName)
-        private val beepProgress: ImageView = itemView.findViewById(R.id.beepProgress)
-        private val beepText: TextView = itemView.findViewById(R.id.beepText)
-        private val selectedCheck: CheckBox = itemView.findViewById(R.id.selectedCheck)
 
-        fun bind(dog: Dog2) {
-            dogImage.setImageResource(dog.imageResId)
-            dogName.text = dog.name
-            beepProgress.setImageResource(dog.beepProgress)
-            beepText.text = dog.beepSound
-            selectedCheck.isChecked = dog.isSelected
+        @SuppressLint("NotifyDataSetChanged")
+        fun bind(dog: Dog) {
+            val context = itemView.context
+            binding.checkboxSelectDog.isChecked = dog.isSelected
+            binding.checkboxSelectDog.setOnClickListener {
 
-            selectedCheck.setOnCheckedChangeListener { _, isChecked ->
-                dog.isSelected = isChecked
-                onDogSelectedListener?.invoke(dog)
+                dataDogList.forEach { it.isSelected = false }
+                dog.isSelected = true
+                handleSave(dog)
             }
+                val (bitmap, position) = dog.getDogIconBitmapWithStatus(context)
+
+                if (bitmap != null) {
+                    binding.imageViewDog.setImageBitmap(bitmap)
+                } else {
+                    println("No bitmap available for position: $position")
+                }
+                if(position != 0 && position !=3){
+                    binding.textviewSpeed.visibility = View.VISIBLE
+
+                }else{
+                    binding.textviewSpeed.visibility = View.GONE
+                }
+
+                showOnlineDogInfo(dog)
+
         }
+
+        @SuppressLint("SetTextI18n")
+        private fun showOnlineDogInfo(dog: Dog) {
+
+            binding.textviewDogName.text = dog.name
+            binding.textviewDogPower.text = "${dog.power}%"
+            binding.textviewTime.text = getCurrentFormattedTime()
+
+        }
+        fun getCurrentFormattedTime(): String {
+            val calendar = Calendar.getInstance()
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+            return dateFormat.format(calendar.time)
+        }
+
     }
 }
-

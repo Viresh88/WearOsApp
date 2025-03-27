@@ -1,81 +1,134 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginVertical="4dp"
-    android:layout_marginStart="3dp"
-    android:layout_marginEnd="3dp"
-    app:cardBackgroundColor="#FFFFFF"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_margin="5dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:boxedEdges="all"
+    android:background="@drawable/border_background">
 
+    <!-- ConstraintLayout to align image, info column, and radio button in a row -->
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
+        android:id="@+id/item_container"
+        android:layout_width="186dp"
         android:layout_height="match_parent"
-        android:padding="5dp">
+        android:padding="8dp">
 
-        <!-- Dog image on the left -->
+        <!-- Dog Image -->
         <ImageView
-            android:id="@+id/dogImage"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:scaleType="centerCrop"
+            android:id="@+id/imageViewDog"
+            android:layout_width="38dp"
+            android:layout_height="52dp"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/dog_standing"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            tools:src="@tools:sample/avatars" />
+            tools:ignore="ImageContrastCheck" />
 
-        <!-- CheckBox on the right -->
-        <CheckBox
-            android:id="@+id/selectedCheck"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:buttonTint="#2196F3"
+        <!-- Vertical column with dog details -->
+        <LinearLayout
+            android:id="@+id/linearLayoutDogInfo"
+            android:layout_width="90dp"
+            android:layout_height="52dp"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/imageViewDog"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <!-- Horizontal row for dog name and dog power -->
+            <LinearLayout
+                android:id="@+id/horizontalRowDogInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <!-- Dog Name -->
+                <TextView
+                    android:id="@+id/textview_dog_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/dog_item"
+                    android:textColor="@color/black"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/battery"
+                    android:textColor="@color/black"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/textview_dog_power"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/battery_stat"
+                    android:textColor="@color/black"
+                    android:textSize="11sp" />
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:id="@+id/horizontalRowDistanceSpeed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <!-- Dog Distance -->
+                <TextView
+                    android:id="@+id/textview_distance"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/distance"
+                    android:textSize="11sp" />
+
+                <!-- Spacer to push Dog Speed to the right -->
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
+                <!-- Dog Speed -->
+                <TextView
+                    android:id="@+id/textview_speed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Speed"
+                    android:textSize="11sp" />
+            </LinearLayout>
+
+
+            <!-- Time -->
+            <TextView
+                android:id="@+id/textview_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/date_time"
+                android:textSize="11sp" />
+        </LinearLayout>
+
+        <!-- Radio Button for selection -->
+        <RadioButton
+            android:id="@+id/checkbox_select_dog"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_marginStart="5dp"
+            android:background="@drawable/checkbox_selector"
+            android:button="@null"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
-
-        <!-- Dog name TextView -->
-        <TextView
-            android:id="@+id/dogName"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:text="Granger Doggie"
-            android:textColor="#333333"
-            android:textSize="10sp"
-            android:textStyle="bold"
-            app:layout_constraintStart_toEndOf="@id/dogImage"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Granger Doggie" />
-
-        <!-- Battery image (fixed size) -->
-        <ImageView
-            android:id="@+id/beepProgress"
-            android:layout_width="16dp"
-            android:layout_height="16dp"
-            android:layout_marginStart="5dp"
-            app:layout_constraintStart_toEndOf="@id/dogImage"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/dogName"
-            tools:src="@drawable/battery" />
-
-        <!-- Beep text label -->
-        <TextView
-            android:id="@+id/beepText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="5dp"
-            android:text="100%"
-            android:textColor="#666666"
-            android:textSize="8sp"
-            app:layout_constraintStart_toEndOf="@id/beepProgress"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/dogName"
-            tools:text="Beep Sound" />
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

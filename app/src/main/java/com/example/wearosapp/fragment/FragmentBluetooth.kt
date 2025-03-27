@@ -335,8 +335,9 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
             updateBleListStatus(bleDevice?.address , bluetoothStatus , true)
             Toast.makeText(requireContext() , getString(R.string.connected) , Toast.LENGTH_SHORT)
                 .show()
-            returnToMainScreen()
+
             viewModel?.createNewDevice(Device(bleDevice?.name, bleDevice?.address, true, bluetoothStatus,"Connected"))
+            returnToMainScreen()
             scanResultAdapter?.notifyDataSetChanged()
         }
     }
