@@ -29,4 +29,5 @@
     <string name="distance">0m</string>
     <string name="date_time">date time</string>
     <string name="compass">compass\n</string>
+    <string name="enter_valid_password">Enter valid password</string>
 </resources>

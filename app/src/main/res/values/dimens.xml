@@ -49,5 +49,5 @@
     <dimen name="compass_margin">16dp</dimen>
     <dimen name="list_margin">8dp</dimen>
     <dimen name="list_bottom_padding">16dp</dimen>
-    <dimen name="rotation_text_size">8sp</dimen>
+    <dimen name="rotation_text_size">10sp</dimen>
 </resources>

@@ -39,17 +39,11 @@ object BluetoothManagerClass {
     private val UUID_NOTIFY = UUID.fromString("0000AB02-0000-1000-8000-00805F9B34FB")
     private val UUID_WRITE = UUID.fromString("0000AB01-0000-1000-8000-00805F9B34FB")
     private val UUID_DESCRIPTOR = UUID.fromString("00002A05-0000-1000-8000-00805F9B34FB")
-    private var bleDevice: BluetoothDevice? = null
+    var bleDevice: BluetoothDevice? = null
     private val deviceGattMap = ConcurrentHashMap<BluetoothDevice, BluetoothGatt>()
     var bluetoothEventCallbacks = ArrayList<BluetoothEventCallback>()
     private var characteristicNotify: BluetoothGattCharacteristic? = null
     private var characteristicWrite: BluetoothGattCharacteristic? = null
-
-    // Store discovered devices using MAC address as key.
-    private val discoveredDevices = ConcurrentHashMap<String, BluetoothDevice>()
-
-    // Keep a reference to the current scan callback.
-    private var currentScanCallback: ScanCallback? = null
 
     private val bluetoothAdapter: BluetoothAdapter by lazy {
         val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
@@ -63,9 +57,7 @@ object BluetoothManagerClass {
 
         FormatCommand.onFormatData = object : OnFormatData {
             override fun onData(data: String) {
-                if (data.isNotEmpty()) {
-                    bluetoothEventCallbacks.forEach { it.onNotifyFormat(data) }
-                }
+                if (data.isNotEmpty()) bluetoothEventCallbacks.forEach { it.onNotifyFormat(data) }
             }
 
             override fun onDogData(dogs: List<Dog>) {
@@ -85,9 +77,7 @@ object BluetoothManagerClass {
             }
 
             override fun onIncorrectPassword() {
-                this@BluetoothManagerClass.bleDevice?.let {
-                    SharedPreferencesUtils.remove(this@BluetoothManagerClass.context, it.address!!)
-                }
+                this@BluetoothManagerClass.bleDevice?.let { SharedPreferencesUtils.remove(this@BluetoothManagerClass.context, it.address!!) }
                 val gatt = bleDevice?.let { deviceGattMap[it] }
                 gatt?.let { disableNotification(it, characteristicNotify!!) }
                 disconnect()
@@ -119,57 +109,30 @@ object BluetoothManagerClass {
 
     fun startScan() {
         val bluetoothLeScanner = bluetoothAdapter.bluetoothLeScanner
-        // Create and store the ScanCallback instance.
-        currentScanCallback = createScanCallback().also {
-            Log.d("BluetoothManager", "Starting scan with callback: $it")
-        }
+        val scanCallback = createScanCallback()
         val scanSettings = ScanSettings.Builder()
             .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
             .build()
-        // Using a scan filter here; remove if you want to scan all devices.
         val scanFilter = ScanFilter.Builder()
             .setServiceUuid(ParcelUuid(UUID_SERVICE))
             .build()
         val scanFilters = listOf(scanFilter)
-        bluetoothLeScanner?.startScan(scanFilters, scanSettings, currentScanCallback)
-        bluetoothEventCallbacks.forEach { it.onScanStarted() }
+        bluetoothLeScanner?.startScan(scanFilters, scanSettings, scanCallback)
+        this.bluetoothEventCallbacks.forEach { it.onScanStarted() }
         stopScanAfterDelay()
     }
 
-//    fun startScan() {
-//                val bluetoothLeScanner = bluetoothAdapter.bluetoothLeScanner
-//        val scanCallback = createScanCallback()
-//        val scanSettings = ScanSettings.Builder()
-//            .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-//            .build()
-//
-//        // Start scanning without filters by passing null as the first argument
-//        bluetoothLeScanner?.startScan(null, scanSettings, scanCallback)
-//        this.bluetoothEventCallbacks.forEach { it.onScanStarted() }
-//        stopScanAfterDelay()
-//    }
     private fun stopScanAfterDelay() {
         Handler(Looper.getMainLooper()).postDelayed({
-            Log.d("BluetoothManager", "Delay elapsed, stopping scan")
             stopScan()
-        }, 1000)
+        }, 5000)
     }
 
     fun stopScan() {
         val bluetoothLeScanner = bluetoothAdapter.bluetoothLeScanner
-        currentScanCallback?.let {
-            bluetoothLeScanner?.stopScan(it)
-            Log.d("BluetoothManager", "Stopping scan with callback: $it")
-            currentScanCallback = null
-        }
-        bluetoothEventCallbacks.forEach {
-            it.onScanFinished()
-            Log.d("BluetoothManager", "Notified callback onScanFinished")
-        }
-    }
-
-    fun getDiscoveredDevices(): List<BluetoothDevice> {
-        return discoveredDevices.values.toList()
+        val scanCallback = createScanCallback()
+        bluetoothLeScanner?.stopScan(scanCallback)
+        this.bluetoothEventCallbacks.forEach { it.onScanFinished() }
     }
 
     fun connect(mac: String) {
@@ -177,15 +140,15 @@ object BluetoothManagerClass {
         val bluetoothDevice = bluetoothAdapter.getRemoteDevice(mac)
         bleDevice = bluetoothDevice
         val gattCallback = createGattCallback()
-        val gatt: BluetoothGatt? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            bluetoothDevice.connectGatt(context, true, gattCallback, BluetoothDevice.TRANSPORT_LE)
+        var gatt: BluetoothGatt? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            bluetoothDevice?.connectGatt(context, true, gattCallback,BluetoothDevice.TRANSPORT_LE)
         } else {
-            bluetoothDevice.connectGatt(context, true, gattCallback)
+            bluetoothDevice?.connectGatt(context, true, gattCallback)
         }
         if (gatt != null) {
             deviceGattMap[bluetoothDevice] = gatt
         } else {
-            bluetoothEventCallbacks.forEach {
+            this.bluetoothEventCallbacks.forEach {
                 this@BluetoothManagerClass.bleDevice = null
                 it.onConnectFail(bleDevice)
             }
@@ -204,13 +167,27 @@ object BluetoothManagerClass {
         }
     }
 
+    private fun disableNotification(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
+        if (bleDevice!!.isConnected()) {
+            if (characteristicNotify != null) {
+                gatt.setCharacteristicNotification(characteristic, false)
+                val descriptor = characteristic.getDescriptor(UUID_DESCRIPTOR)
+                if (descriptor != null) {
+                    descriptor.value = BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
+                    gatt.writeDescriptor(descriptor)
+                    bluetoothEventCallbacks.forEach { it.onDisconnected(false, bleDevice) }
+                }
+            }
+        }
+    }
+
     fun isConnected(): Boolean {
         if (bleDevice == null) return false
         return bluetoothAdapter.isEnabled
     }
 
     fun addBleInfoCallback(callback: BluetoothEventCallback) {
-        if (!bluetoothEventCallbacks.contains(callback)) bluetoothEventCallbacks.add(callback)
+        if (!bluetoothEventCallbacks.contains(callback))bluetoothEventCallbacks.add(callback)
     }
 
     fun removeBleInfoCallback(callback: BluetoothEventCallback) {
@@ -221,9 +198,9 @@ object BluetoothManagerClass {
         return object : ScanCallback() {
             override fun onScanResult(callbackType: Int, result: ScanResult?) {
                 result?.device?.let { bluetoothDevice ->
-                    discoveredDevices[bluetoothDevice.address] = bluetoothDevice
-                    bluetoothEventCallbacks.forEach { it.onScanning(bluetoothDevice) }
-                    // Removed startScan() call here.
+                    bluetoothEventCallbacks.forEach {
+                        it.onScanning(bluetoothDevice)
+                    }
                 }
             }
 
@@ -241,11 +218,14 @@ object BluetoothManagerClass {
                 newState: Int
             ) {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
-                    val macAddress = SharedPreferencesUtils.getString(this@BluetoothManagerClass.context, "LastConnectedDevice" ?: "", "")
+                    val macAddress = SharedPreferencesUtils.getString(this@BluetoothManagerClass.context , "LastConnectedDevice" ?: "", "")
                     if (!macAddress.isNullOrEmpty()) {
-                        bluetoothEventCallbacks.forEach { it.onConnectDeviceSuccess(bleDevice) }
+                        bluetoothEventCallbacks.forEach {
+                            it.onConnectDeviceSuccess(bleDevice)
+                        }
                     }
                     gatt?.discoverServices()
+
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                     disconnect()
                 }
@@ -261,8 +241,11 @@ object BluetoothManagerClass {
                     } else {
                         disconnect()
                     }
-                    SharedPreferencesUtils.putString(this@BluetoothManagerClass.context, "LastConnectedDevice", bleDevice!!.address)
-                    bluetoothEventCallbacks.forEach { it.onConnectSuccess(bleDevice) }
+                    SharedPreferencesUtils.putString(this@BluetoothManagerClass.context , "LastConnectedDevice" , bleDevice!!.address)
+                    bluetoothEventCallbacks.forEach {
+
+                        it.onConnectSuccess(bleDevice)
+                    }
                 } else {
                     disconnect()
                 }
@@ -273,9 +256,7 @@ object BluetoothManagerClass {
                 descriptor: BluetoothGattDescriptor?,
                 status: Int
             ) {
-                if (status == BluetoothGatt.GATT_SUCCESS && descriptor?.uuid == UUID_DESCRIPTOR) {
-                    // Descriptor written successfully.
-                }
+                if (status == BluetoothGatt.GATT_SUCCESS && descriptor?.uuid == UUID_DESCRIPTOR) {}
             }
 
             @Deprecated("Deprecated in Java")
@@ -284,7 +265,8 @@ object BluetoothManagerClass {
                 characteristic: BluetoothGattCharacteristic?
             ) {
                 characteristic?.value?.let { value ->
-                    Log.d("BluetoothManager", "Received data: ${value.contentToString()}")
+                    val data = characteristic.value // This is the data received from the peripheral device
+                    Log.d("LastConnectedDevice", "Received data: ${data.contentToString()}")
                     bluetoothEventCallbacks.forEach { it.onNotify(value) }
                     FormatCommand.format(value)
                 }
@@ -301,32 +283,21 @@ object BluetoothManagerClass {
         }
     }
 
+
+
     private fun enableNotification(gatt: BluetoothGatt) {
         if (bleDevice!!.isConnected()) {
-            characteristicNotify?.let { characteristic ->
-                gatt.setCharacteristicNotification(characteristic, true)
-                val descriptor = characteristic.getDescriptor(UUID_DESCRIPTOR)
-                descriptor?.let {
-                    it.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
-                    gatt.writeDescriptor(it)
+            if (characteristicNotify != null) {
+                gatt.setCharacteristicNotification(characteristicNotify , true)
+                val descriptor = characteristicNotify!!.getDescriptor(UUID_DESCRIPTOR)
+                if (descriptor != null) {
+                    descriptor.value = BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE
+                    gatt.writeDescriptor(descriptor)
                 }
             }
         }
     }
 
-    private fun disableNotification(gatt: BluetoothGatt, characteristic: BluetoothGattCharacteristic) {
-        if (bleDevice!!.isConnected()) {
-            gatt.setCharacteristicNotification(characteristic, false)
-            val descriptor = characteristic.getDescriptor(UUID_DESCRIPTOR)
-            descriptor?.let {
-                it.value = BluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
-                gatt.writeDescriptor(it)
-                bluetoothEventCallbacks.forEach { callback ->
-                    callback.onDisconnected(false, bleDevice)
-                }
-            }
-        }
-    }
 
     fun sendPassword(pwd: String) {
         password = pwd
@@ -337,16 +308,17 @@ object BluetoothManagerClass {
     fun sendRenameCommand(name: String) {
         val data = "Rename#$name\r\n"
         write(data.toByteArray())
-        myLog("Sending rename command: $name")
+        myLog( "Sending rename command: $name")
     }
 
     fun sendChangePasswordCommand(newPassword: String) {
         val data = "Repwd#$newPassword\r\n"
         write(data.toByteArray())
-        myLog("Sending change password command")
+        myLog( "Sending change password command")
     }
 
     fun writeData(data: String) {
         write((data + "\r\n").toByteArray())
     }
 }
+

@@ -1,8 +1,6 @@
 package com.example.wearosapp.fragment
 
 import android.annotation.SuppressLint
-import android.hardware.GeomagneticField
-import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -22,20 +20,17 @@ import com.example.wearosapp.injection.ViewModelFactory
 import com.example.wearosapp.model.Dog
 import com.example.wearosapp.ui.utils.SharedPreferencesUtils
 import com.example.wearosapp.viewmodel.DogViewModel
-import com.example.wearosapp.fragment.CompassFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @SuppressLint("NotifyDataSetChanged")
-class CompassFragment : BaseFragment<FragmentCompassBinding>() {
+class FragmentCompass : BaseFragment<FragmentCompassBinding>() {
     private var viewModel: DogViewModel? = null
     private var modelFactory: ViewModelFactory? = null
-
     private var adapterDog: DogAdapter? = null
     private val dogs = ArrayList<Dog>()
-
 
     override fun createBinding(
         inflater: LayoutInflater,
@@ -50,46 +45,37 @@ class CompassFragment : BaseFragment<FragmentCompassBinding>() {
             activity?.let { SharedPreferencesUtils.getString(it, "LastConnectedDevice" ?: "", "") }
         if (macAddress != null) {
             viewModel?.getStatusByMacAddress(macAddress) { status ->
-
-                if (status!= null && status) {
+                if (status != null && status) {
                     initRecyclerViewCompass()
                     getDogInData()
                 } else {
-                    Toast.makeText(requireContext() , getString(R.string.device_is_not_connected) , Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.device_is_not_connected),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
     }
-
 
     private fun configureViewModel() {
         modelFactory = Injection.provideViewModelFactory(requireActivity())
         viewModel = ViewModelProvider(this, modelFactory!!)[DogViewModel::class.java]
     }
 
-
-
     private fun getDogInData() {
         if (BluetoothManagerClass.isConnected()) {
             viewModel?.getAllDogs()?.observe(viewLifecycleOwner) { dogs ->
                 CoroutineScope(Dispatchers.IO).launch {
-                    // Perform database filtering operation on a background thread
-//                    val filteredDogs = dogs.filter { it.isOnline && it.latitude != 0.0 }
-
-                    // Update the UI on the main thread after the operation is complete
                     withContext(Dispatchers.Main) {
-                        this@CompassFragment.dogs.clear()
-                        this@CompassFragment.dogs.addAll(dogs)
-
+                        this@FragmentCompass.dogs.clear()
+                        this@FragmentCompass.dogs.addAll(dogs)
                         adapterDog?.notifyDataSetChanged()
-
                     }
-
                 }
             }
         }
-
     }
 
     private fun updateDogSelectionInDatabase(dog: MutableList<Dog>) {
@@ -115,62 +101,50 @@ class CompassFragment : BaseFragment<FragmentCompassBinding>() {
 
     @SuppressLint("SuspiciousIndentation")
     private fun handleDogSelection(selectedDog: Dog) {
-
-        Log.d("handleDogSelection","handleDogSelection");
+        Log.d("handleDogSelection", "handleDogSelection")
         dogs.forEach { it.isSelected = false }
         selectedDog.isSelected = true
         CoroutineScope(Dispatchers.IO).launch {
             updateDogSelectionInDatabase(dogs)
             withContext(Dispatchers.Main) {
-
+                // Additional UI updates can be added here if necessary.
             }
         }
-
         adapterDog?.notifyDataSetChanged()
     }
 
-    override fun onDogData(dogs: List<Dog>) {
+    override fun onDogData(updatedDogs: List<Dog>) {
         if (!isAdded) {
             return
         }
-
         CoroutineScope(Dispatchers.IO).launch {
             val temp = ArrayList<Dog>()
-
-            dogs.forEach { dog ->
-                val existingDog = this@CompassFragment.dogs.find { it.imei == dog.imei }
+            updatedDogs.forEach { dog ->
+                val existingDog = this@FragmentCompass.dogs.find { it.imei == dog.imei }
                 if (existingDog != null) {
                     dog.isSelected = existingDog.isSelected
                     dog.levelSanction = existingDog.levelSanction
                 }
                 temp.add(dog)
             }
-
             withContext(Dispatchers.Main) {
                 if (isAdded) {
-
-
+                    dogs.clear()
+                    dogs.addAll(temp)
+                    adapterDog?.notifyDataSetChanged()
                 }
             }
         }
-
     }
 
-
-//    override fun onDogUpdate() {
-//        super.onDogUpdate()
-//        Toast.makeText(requireContext() , "Please pull down to refresh the page and obtain the most recent dog information" , Toast.LENGTH_SHORT)
-//            .show()
-//    }
 
     override fun onResume() {
         super.onResume()
-
+        // Additional resume functionality if needed.
     }
-
 
     override fun onPause() {
         super.onPause()
-
+        // Additional pause functionality if needed.
     }
 }
