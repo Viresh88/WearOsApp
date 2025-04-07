@@ -67,7 +67,8 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
         set(value) {
             field = value
             activity?.runOnUiThread {
-                binding.analyseBottom.text = if (value) getString(R.string.loading) else getString(R.string.analyze)
+                binding.analyseBottom.text =
+                    if (value) getString(R.string.loading) else getString(R.string.analyze)
             }
         }
 
@@ -82,7 +83,8 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
         permissionHelper = PermissionHelper(requireActivity())
         binding.analyseBottom.setOnClickListener {
             if (bluetoothAdapter.isEnabled) onScanButtonClick()
-            else promptEnableBluetooth() }
+            else promptEnableBluetooth()
+        }
         configureAdapterBle()
         setupRecyclerView()
         configureViewModel()
@@ -96,7 +98,7 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
 
     private fun configureViewModel() {
         modelFactory = Injection.provideViewModelFactory(requireContext())
-        viewModel = ViewModelProvider(this , modelFactory!!)[DogViewModel::class.java]
+        viewModel = ViewModelProvider(this, modelFactory!!)[DogViewModel::class.java]
     }
 
     private fun updateCollarInData() {
@@ -109,8 +111,10 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
 
     private fun configureAdapterBle() {
         if (!activity?.packageManager?.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)!!) {
-            Toast.makeText(requireContext() ,
-                getString(R.string.blue_not_supported) , Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                requireContext(),
+                getString(R.string.blue_not_supported), Toast.LENGTH_SHORT
+            ).show()
             requireActivity().finish()
         }
     }
@@ -121,8 +125,7 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
                 if (!bluetoothAdapter.isEnabled) {
                     val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
                     startActivityForResult(enableBtIntent, ENABLE_BLUETOOTH_REQUEST_CODE)
-                }
-                else {
+                } else {
                 }
             } else {
                 permissionHelper.checkPermissions()
@@ -137,7 +140,11 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
     }
 
     @Deprecated("Deprecated in Java")
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         when (requestCode) {
             ENABLE_BLUETOOTH_REQUEST_CODE -> {
@@ -161,7 +168,8 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
     }
 
     private fun setupRecyclerView() {
-        scanResultAdapter = BluetoothAdapterDevice(scanResults,
+        scanResultAdapter = BluetoothAdapterDevice(
+            scanResults,
             itemClicked = { position ->
                 connectToDevice(position)
                 selectedPosition = position
@@ -173,8 +181,8 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
         binding.recyclerViewBluetooth.apply {
             adapter = scanResultAdapter
             layoutManager = LinearLayoutManager(
-                requireContext() ,
-                RecyclerView.VERTICAL ,
+                requireContext(),
+                RecyclerView.VERTICAL,
                 false
             )
             isNestedScrollingEnabled = false
@@ -215,9 +223,19 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
 
     private fun colorScan() {
         if (isScanning) {
-            binding.analyseBottom.setTextColor(ContextCompat.getColor(requireContext(), R.color.grey))
+            binding.analyseBottom.setTextColor(
+                ContextCompat.getColor(
+                    requireContext(),
+                    R.color.grey
+                )
+            )
         } else {
-            binding.analyseBottom.setTextColor(ContextCompat.getColor(requireContext(), R.color.light_orange))
+            binding.analyseBottom.setTextColor(
+                ContextCompat.getColor(
+                    requireContext(),
+                    R.color.light_orange
+                )
+            )
         }
     }
 
@@ -252,8 +270,14 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
     @SuppressLint("MissingPermission")
     override fun onScanning(bluetoothDevice: BluetoothDevice) {
         requireActivity().runOnUiThread {
-            val existingDeviceIndex = scanResults.indexOfFirst { it.address == bluetoothDevice.address }
-            val newDevice = Device(bluetoothDevice.name, bluetoothDevice.address, false, getString(R.string.disconnect))
+            val existingDeviceIndex =
+                scanResults.indexOfFirst { it.address == bluetoothDevice.address }
+            val newDevice = Device(
+                bluetoothDevice.name,
+                bluetoothDevice.address,
+                false,
+                getString(R.string.disconnect)
+            )
             if (existingDeviceIndex != -1) {
                 scanResults[existingDeviceIndex] = newDevice
                 scanResultAdapter?.notifyItemChanged(existingDeviceIndex)
@@ -284,6 +308,7 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
         // Reset the connection state so that UI shows all devices as disconnected
         updateStatus() // This method should mark each device in scanResults as disconnected
     }
+
     override fun onScanFinished() {
         requireActivity().runOnUiThread {
             binding.progressBarBluetooth.isVisible = false
@@ -297,7 +322,7 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
         handler.post {
             requireActivity().runOnUiThread {
                 val bluetoothStatus = getString(R.string.connecting)
-                updateBleListStatus(mac , bluetoothStatus , false)
+                updateBleListStatus(mac, bluetoothStatus, false)
                 binding.progressBarBluetooth.isVisible = false
                 scanResultAdapter?.notifyDataSetChanged()
             }
@@ -319,7 +344,8 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
             }
 
             // Check if a password is saved for this device.
-            val password = SharedPreferencesUtils.getString(requireContext(), bleDevice?.address ?: "", "")
+            val password =
+                SharedPreferencesUtils.getString(requireContext(), bleDevice?.address ?: "", "")
             if (password.isBlank()) {
                 // Show password dialog if no password is saved.
                 showInputDialog { passwordEditText ->
@@ -346,11 +372,19 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
     override fun onConnectDeviceSuccess(bleDevice: BluetoothDevice?) {
         requireActivity().runOnUiThread {
             val bluetoothStatus = activity?.applicationContext?.getString(R.string.connected)
-            updateBleListStatus(bleDevice?.address , bluetoothStatus , true)
-            Toast.makeText(requireContext() , getString(R.string.connected) , Toast.LENGTH_SHORT)
+            updateBleListStatus(bleDevice?.address, bluetoothStatus, true)
+            Toast.makeText(requireContext(), getString(R.string.connected), Toast.LENGTH_SHORT)
                 .show()
             returnToMainScreen()
-            viewModel?.createNewDevice(Device(bleDevice?.name, bleDevice?.address, true, bluetoothStatus,"Connected"))
+            viewModel?.createNewDevice(
+                Device(
+                    bleDevice?.name,
+                    bleDevice?.address,
+                    true,
+                    bluetoothStatus,
+                    "Connected"
+                )
+            )
             scanResultAdapter?.notifyDataSetChanged()
         }
     }
@@ -366,26 +400,27 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
                 }
             }
             scanResultAdapter?.notifyDataSetChanged()
-            Toast.makeText(requireContext(), getString(R.string.psw_error), Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), getString(R.string.psw_error), Toast.LENGTH_SHORT)
+                .show()
         }
     }
 
     override fun onConnectFail(bleDevice: BluetoothDevice?) {
         requireActivity().runOnUiThread {
             val bluetoothStatus = activity?.applicationContext?.getString(R.string.connect_fail)
-            updateBleListStatus(bleDevice?.address , bluetoothStatus , false)
-            Toast.makeText(requireContext() , getString(R.string.connect_fail) , Toast.LENGTH_SHORT)
+            updateBleListStatus(bleDevice?.address, bluetoothStatus, false)
+            Toast.makeText(requireContext(), getString(R.string.connect_fail), Toast.LENGTH_SHORT)
                 .show()
             scanResultAdapter?.notifyDataSetChanged()
         }
     }
 
-    override fun onDisconnected(isActiveDisConnected: Boolean , device: BluetoothDevice?) {
-        super.onDisconnected(isActiveDisConnected , device)
+    override fun onDisconnected(isActiveDisConnected: Boolean, device: BluetoothDevice?) {
+        super.onDisconnected(isActiveDisConnected, device)
         requireActivity().runOnUiThread {
             val bluetoothStatus = activity?.applicationContext?.getString(R.string.disconnect)
-            updateBleListStatus(device?.address , bluetoothStatus , false)
-            Toast.makeText(requireContext() , getString(R.string.disconnect) , Toast.LENGTH_SHORT)
+            updateBleListStatus(device?.address, bluetoothStatus, false)
+            Toast.makeText(requireContext(), getString(R.string.disconnect), Toast.LENGTH_SHORT)
                 .show()
             scanResultAdapter?.notifyDataSetChanged()
         }
@@ -414,7 +449,8 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
 
     private fun getViewDialogues(): AlertDialog {
         dialogBinding = DialogueSettingsBluetoothBinding.inflate(layoutInflater)
-        val builder: AlertDialog.Builder = AlertDialog.Builder(requireContext(), R.style.AlertDialogCustom)
+        val builder: AlertDialog.Builder =
+            AlertDialog.Builder(requireContext(), R.style.AlertDialogCustom)
         builder.setView(dialogBinding.root)
         return builder.create()
     }
@@ -425,11 +461,16 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
             val dialogBuilder = getViewDialogues()
             dialogBuilder.window?.apply {
                 setLayout(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-                setBackgroundDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.bottom_style_dialog))
+                setBackgroundDrawable(
+                    ContextCompat.getDrawable(
+                        requireContext(),
+                        R.drawable.bottom_style_dialog
+                    )
+                )
             }
 
             dialogBuilder.show()
-            dialogBinding.textViewBluetoothTitle.text= bluetoothDevice.name
+            dialogBinding.textViewBluetoothTitle.text = bluetoothDevice.name
 
             dialogBinding.textViewDeleteBluetooth.setOnClickListener {
                 deleteDeviceInDialogue(position)
@@ -438,7 +479,11 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
 
             dialogBinding.textViewConnected.setOnClickListener {
                 if (bluetoothDevice.status) {
-                    Toast.makeText(requireContext(), getString(R.string.already_connect), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        getString(R.string.already_connect),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 } else {
                     bluetoothDevice.address?.let { address ->
                         BluetoothManagerClass.connect(address)
@@ -460,7 +505,7 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
     }
 
     private fun updateBleListStatus(mac: String?, bleStatus: String?, status: Boolean) {
-        scanResults.forEach { device->
+        scanResults.forEach { device ->
             if (mac == null || device.address == mac) {
                 device.status = status
                 device.bluetoothStatus = bleStatus
@@ -500,13 +545,11 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
             device.status = false
             viewModel?.updateDevice(device)
         }
-        // Clear stored connected device info if any.
         SharedPreferencesUtils.putString(requireActivity(), "LastConnectedDevice", "")
-        BluetoothManagerClass.disconnect()  // Ensure any lingering connections are closed.
+        BluetoothManagerClass.disconnect()  // Ensure any lingering connectons are closed.
     }
 
     companion object {
         const val ENABLE_BLUETOOTH_REQUEST_CODE = 1
     }
 }
-

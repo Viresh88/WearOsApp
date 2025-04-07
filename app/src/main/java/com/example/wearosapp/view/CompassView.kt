@@ -10,10 +10,10 @@ import android.os.Looper
 import android.util.AttributeSet
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import android.view.View
 import android.widget.TextView
 import com.example.wearosapp.R
 import kotlin.math.abs
-
 abstract class CompassView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
@@ -109,3 +109,4 @@ abstract class CompassView @JvmOverloads constructor(
         drawHandler.postDelayed({ draw() }, 5)
     }
 }
+

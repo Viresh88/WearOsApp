@@ -284,7 +284,6 @@ object BluetoothManagerClass {
     }
 
 
-
     private fun enableNotification(gatt: BluetoothGatt) {
         if (bleDevice!!.isConnected()) {
             if (characteristicNotify != null) {

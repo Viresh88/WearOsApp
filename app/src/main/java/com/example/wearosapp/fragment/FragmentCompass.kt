@@ -1,11 +1,17 @@
 package com.example.wearosapp.fragment
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.pm.PackageManager
+import android.hardware.GeomagneticField
+import android.location.Location
 import android.os.Bundle
+import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -15,22 +21,40 @@ import com.example.wearosapp.adapter.DogAdapter
 import com.example.wearosapp.base.BaseFragment
 import com.example.wearosapp.bluetooth.BluetoothManagerClass
 import com.example.wearosapp.databinding.FragmentCompassBinding
+import com.example.wearosapp.helper.SensorHelper
 import com.example.wearosapp.injection.Injection
 import com.example.wearosapp.injection.ViewModelFactory
 import com.example.wearosapp.model.Dog
 import com.example.wearosapp.ui.utils.SharedPreferencesUtils
 import com.example.wearosapp.viewmodel.DogViewModel
+import com.google.android.gms.location.*
+import com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.TimeUnit
+import kotlin.math.atan2
+import kotlin.math.cos
+
+import kotlin.math.sin
 
 @SuppressLint("NotifyDataSetChanged")
 class FragmentCompass : BaseFragment<FragmentCompassBinding>() {
+
     private var viewModel: DogViewModel? = null
     private var modelFactory: ViewModelFactory? = null
+
     private var adapterDog: DogAdapter? = null
     private val dogs = ArrayList<Dog>()
+    private var sensorUtils: SensorHelper? = null
+
+    // Location properties replacing MapsFragment usage
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var locationRequest: LocationRequest
+    private var currentLocation: Location? = null
+    private var locationCallback: LocationCallback? = null
+    private val REQUEST_LOCATION_PERMISSION = 1001
 
     override fun createBinding(
         inflater: LayoutInflater,
@@ -41,8 +65,8 @@ class FragmentCompass : BaseFragment<FragmentCompassBinding>() {
 
     override fun create(savedInstanceState: Bundle?) {
         configureViewModel()
-        val macAddress =
-            activity?.let { SharedPreferencesUtils.getString(it, "LastConnectedDevice" ?: "", "") }
+        initLocationClient() // Initialize fused location provider
+        val macAddress = activity?.let { SharedPreferencesUtils.getString(it, "LastConnectedDevice", "") }
         if (macAddress != null) {
             viewModel?.getStatusByMacAddress(macAddress) { status ->
                 if (status != null && status) {
@@ -59,44 +83,87 @@ class FragmentCompass : BaseFragment<FragmentCompassBinding>() {
         }
     }
 
+    private fun createLocationCallback() {
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(result: LocationResult) {
+                currentLocation = result.lastLocation
+                Log.d("CompassFragment", "Received location: ${currentLocation?.latitude}, ${currentLocation?.longitude}")
+                notifyDogPointer()
+            }
+        }
+    }
+
     private fun configureViewModel() {
         modelFactory = Injection.provideViewModelFactory(requireActivity())
         viewModel = ViewModelProvider(this, modelFactory!!)[DogViewModel::class.java]
+    }
+
+    // Initialize fused location provider client, request, and callback
+    private fun initLocationClient() {
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
+        createLocationRequest()
+        createLocationCallback()
+        startLocationUpdates()
+    }
+
+    private fun createLocationRequest() {
+        locationRequest = LocationRequest.create().apply {
+            interval = 10000 // 10 seconds
+            fastestInterval = 5000 // 5 seconds
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        }
+    }
+
+
+    private fun startLocationUpdates() {
+        if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
+            == PackageManager.PERMISSION_GRANTED
+        ) {
+            fusedLocationClient.requestLocationUpdates(
+                locationRequest,
+                locationCallback!!,
+                Looper.getMainLooper()
+            )
+        } else {
+            requestPermissions(
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                REQUEST_LOCATION_PERMISSION
+            )
+        }
     }
 
     private fun getDogInData() {
         if (BluetoothManagerClass.isConnected()) {
             viewModel?.getAllDogs()?.observe(viewLifecycleOwner) { dogs ->
                 CoroutineScope(Dispatchers.IO).launch {
+                    // Filter dogs that are online and have valid coordinates
+//                    val filteredDogs = dogs.filter { it.isOnline && it.latitude != 0.0 }
                     withContext(Dispatchers.Main) {
                         this@FragmentCompass.dogs.clear()
                         this@FragmentCompass.dogs.addAll(dogs)
-                        adapterDog?.notifyDataSetChanged()
+                        notifyDogPointer()
                     }
                 }
             }
         }
     }
 
-    private fun updateDogSelectionInDatabase(dog: MutableList<Dog>) {
+    private fun updateDogSelectionInDatabase(dogs: MutableList<Dog>) {
         activity?.runOnUiThread {
-            viewModel?.updateAllDogs(dog)
+            viewModel?.updateAllDogs(dogs)
         }
     }
 
     private fun initRecyclerViewCompass() {
-        adapterDog = DogAdapter(dogs) { position ->
-            handleDogSelection(position)
+        adapterDog = DogAdapter(dogs) { selectedDog ->
+            handleDogSelection(selectedDog)
         }
         binding.recyclerviewDogCompass.apply {
             adapter = adapterDog
             layoutManager = LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
             isNestedScrollingEnabled = false
         }
-        val animator = binding.recyclerviewDogCompass.itemAnimator
-        if (animator is SimpleItemAnimator) {
-            animator.supportsChangeAnimations = false
-        }
+        (binding.recyclerviewDogCompass.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
     }
 
     @SuppressLint("SuspiciousIndentation")
@@ -107,19 +174,19 @@ class FragmentCompass : BaseFragment<FragmentCompassBinding>() {
         CoroutineScope(Dispatchers.IO).launch {
             updateDogSelectionInDatabase(dogs)
             withContext(Dispatchers.Main) {
-                // Additional UI updates can be added here if necessary.
+                notifyDogPointer()
             }
         }
-        adapterDog?.notifyDataSetChanged()
     }
 
-    override fun onDogData(updatedDogs: List<Dog>) {
+    override fun onDogData(dogs: List<Dog>) {
         if (!isAdded) {
             return
         }
+
         CoroutineScope(Dispatchers.IO).launch {
             val temp = ArrayList<Dog>()
-            updatedDogs.forEach { dog ->
+            dogs.forEach { dog ->
                 val existingDog = this@FragmentCompass.dogs.find { it.imei == dog.imei }
                 if (existingDog != null) {
                     dog.isSelected = existingDog.isSelected
@@ -129,22 +196,111 @@ class FragmentCompass : BaseFragment<FragmentCompassBinding>() {
             }
             withContext(Dispatchers.Main) {
                 if (isAdded) {
-                    dogs.clear()
-                    dogs.addAll(temp)
+                    notifyDogPointer()
+                }
+            }
+        }
+    }
+
+    /**
+     * Calculate and display dog pointers on the compass.
+     * Uses the currentLocation from the fused location provider instead of MapsFragment.
+     */
+    private fun notifyDogPointer() {
+        if (dogs.isNotEmpty() && currentLocation != null) {
+            CoroutineScope(Dispatchers.IO).launch {
+                val tempDogPointer = mutableListOf<Dog>()
+                currentLocation?.let { position ->
+                    dogs.forEach { dog ->
+                        if (dog.latitude != 0.0 && dog.longitude != 0.0) {
+                            val dogCopy = dog.copy()
+                            // Calculate the angle between the user's current location and the dog's location
+                            val angle = getAngle(
+                                position.latitude,
+                                position.longitude,
+                                dog.latitude,
+                                dog.longitude
+                            ).toFloat()
+                            dogCopy.angle = angle
+                            tempDogPointer.add(dogCopy)
+                        }
+                    }
+                }
+                withContext(Dispatchers.Main) {
+                    binding.dogCompassView.setDogPointer(tempDogPointer)
                     adapterDog?.notifyDataSetChanged()
                 }
             }
         }
     }
 
+    /**
+     * Helper function to calculate the bearing (angle) between two geographic coordinates.
+     */
+    private fun getAngle(
+        userLat: Double,
+        userLon: Double,
+        dogLat: Double,
+        dogLon: Double
+    ): Double {
+        val userLatRad = Math.toRadians(userLat)
+        val userLonRad = Math.toRadians(userLon)
+        val dogLatRad = Math.toRadians(dogLat)
+        val dogLonRad = Math.toRadians(dogLon)
 
+        val deltaLon = dogLonRad - userLonRad
+        val y = sin(deltaLon) * cos(dogLatRad)
+        val x = cos(userLatRad) * sin(dogLatRad) - sin(userLatRad) * cos(dogLatRad) * cos(deltaLon)
+        var bearing = Math.toDegrees(atan2(y, x))
+        bearing = (bearing + 360) % 360
+        return bearing
+    }
+
+    @SuppressLint("MissingPermission")
     override fun onResume() {
         super.onResume()
-        // Additional resume functionality if needed.
+        if (sensorUtils == null) {
+            sensorUtils = activity?.let { SensorHelper(it) }
+        }
+        sensorUtils?.register(object : SensorHelper.OnSensorListener {
+            override fun onAngle(angle: Float) {
+                // Adjust the sensor angle to true north and update the compass rotation.
+                val adjustedAngle = calculateTrueNorthAzimuth(angle)
+                binding.dogCompassView.currentAngle = calculateTrueNorthAzimuth(angle)
+            }
+        })
+        // Restart location updates
+        startLocationUpdates()
+    }
+
+    /**
+     * Adjust the magnetic sensor's reading to get the true north azimuth.
+     * Uses the currentLocation for magnetic declination calculations.
+     */
+    private fun calculateTrueNorthAzimuth(magneticNorthAzimuth: Float): Float {
+        currentLocation?.let { userLocation ->
+            val magneticDeclination = getMagneticDeclination(userLocation)
+            val trueNorthAzimuth = magneticNorthAzimuth + magneticDeclination
+            return (trueNorthAzimuth + 360) % 360
+        }
+        return magneticNorthAzimuth
+    }
+
+    private fun getMagneticDeclination(userLocation: Location): Float {
+        val geoMagneticField = GeomagneticField(
+            userLocation.latitude.toFloat(),
+            userLocation.longitude.toFloat(),
+            userLocation.altitude.toFloat(),
+            System.currentTimeMillis()
+        )
+        return geoMagneticField.declination
     }
 
     override fun onPause() {
         super.onPause()
-        // Additional pause functionality if needed.
+        sensorUtils?.unregister()
+        locationCallback?.let { fusedLocationClient.removeLocationUpdates(it) }
     }
 }
+
+

@@ -71,6 +71,7 @@ dependencies {
     implementation(libs.media3.common.ktx)
     implementation(libs.navigation.fragment.ktx)
     implementation(libs.navigation.ui.ktx)
+    implementation(libs.play.services.location)
     ksp("androidx.room:room-compiler:2.5.0")
     implementation("androidx.palette:palette-ktx:1.0.0")
 
