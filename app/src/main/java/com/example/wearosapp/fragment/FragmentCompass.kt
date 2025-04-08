@@ -33,10 +33,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.concurrent.TimeUnit
 import kotlin.math.atan2
 import kotlin.math.cos
-
 import kotlin.math.sin
 
 @SuppressLint("NotifyDataSetChanged")
@@ -87,7 +85,7 @@ class FragmentCompass : BaseFragment<FragmentCompassBinding>() {
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
                 currentLocation = result.lastLocation
-                Log.d("CompassFragment", "Received location: ${currentLocation?.latitude}, ${currentLocation?.longitude}")
+                Log.d("FragmentCompass", "Received location: ${currentLocation?.latitude}, ${currentLocation?.longitude}")
                 notifyDogPointer()
             }
         }
@@ -110,10 +108,9 @@ class FragmentCompass : BaseFragment<FragmentCompassBinding>() {
         locationRequest = LocationRequest.create().apply {
             interval = 10000 // 10 seconds
             fastestInterval = 5000 // 5 seconds
-            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            priority = PRIORITY_HIGH_ACCURACY
         }
     }
-
 
     private fun startLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
@@ -132,12 +129,29 @@ class FragmentCompass : BaseFragment<FragmentCompassBinding>() {
         }
     }
 
+    // Handle runtime permission results
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQUEST_LOCATION_PERMISSION) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startLocationUpdates()
+            } else {
+                Toast.makeText(requireContext(), "Location permission denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     private fun getDogInData() {
         if (BluetoothManagerClass.isConnected()) {
             viewModel?.getAllDogs()?.observe(viewLifecycleOwner) { dogs ->
+                // Optionally, you can filter dogs here (e.g., check for valid coordinates)
+//                val filteredDogs = dogs.filter { it.isOnline && it.latitude != 0.0 && it.longitude != 0.0 }
+
                 CoroutineScope(Dispatchers.IO).launch {
-                    // Filter dogs that are online and have valid coordinates
-//                    val filteredDogs = dogs.filter { it.isOnline && it.latitude != 0.0 }
                     withContext(Dispatchers.Main) {
                         this@FragmentCompass.dogs.clear()
                         this@FragmentCompass.dogs.addAll(dogs)
@@ -183,7 +197,6 @@ class FragmentCompass : BaseFragment<FragmentCompassBinding>() {
         if (!isAdded) {
             return
         }
-
         CoroutineScope(Dispatchers.IO).launch {
             val temp = ArrayList<Dog>()
             dogs.forEach { dog ->
@@ -228,11 +241,13 @@ class FragmentCompass : BaseFragment<FragmentCompassBinding>() {
                 }
                 withContext(Dispatchers.Main) {
                     binding.dogCompassView.setDogPointer(tempDogPointer)
+                    binding.dogCompassView.invalidate()  // <-- Trigger redraw here
                     adapterDog?.notifyDataSetChanged()
                 }
             }
         }
     }
+
 
     /**
      * Helper function to calculate the bearing (angle) between two geographic coordinates.
@@ -256,6 +271,7 @@ class FragmentCompass : BaseFragment<FragmentCompassBinding>() {
         return bearing
     }
 
+
     @SuppressLint("MissingPermission")
     override fun onResume() {
         super.onResume()
@@ -264,9 +280,8 @@ class FragmentCompass : BaseFragment<FragmentCompassBinding>() {
         }
         sensorUtils?.register(object : SensorHelper.OnSensorListener {
             override fun onAngle(angle: Float) {
-                // Adjust the sensor angle to true north and update the compass rotation.
                 val adjustedAngle = calculateTrueNorthAzimuth(angle)
-                binding.dogCompassView.currentAngle = calculateTrueNorthAzimuth(angle)
+                binding.dogCompassView.currentAngle = adjustedAngle
             }
         })
         // Restart location updates
@@ -302,5 +317,3 @@ class FragmentCompass : BaseFragment<FragmentCompassBinding>() {
         locationCallback?.let { fusedLocationClient.removeLocationUpdates(it) }
     }
 }
-
-

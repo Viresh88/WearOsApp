@@ -30,8 +30,8 @@
                 <!-- Rotation Overlay -->
                 <com.example.wearosapp.view.DogCompassView
                     android:id="@+id/dogCompassView"
-                    android:layout_width="92dp"
-                    android:layout_height="83dp"
+                    android:layout_width="138dp"
+                    android:layout_height="117dp"
                     app:layout_constraintBottom_toTopOf="@id/recyclerview_dog_compass"
                     app:layout_constraintDimensionRatio="1:1"
                     app:layout_constraintEnd_toEndOf="parent"

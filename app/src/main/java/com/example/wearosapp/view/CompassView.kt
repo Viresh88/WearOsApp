@@ -14,6 +14,7 @@ import android.view.View
 import android.widget.TextView
 import com.example.wearosapp.R
 import kotlin.math.abs
+
 abstract class CompassView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
