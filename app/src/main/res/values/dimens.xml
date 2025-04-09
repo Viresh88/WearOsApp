@@ -7,7 +7,7 @@
     <dimen name="fab_margin">20dp</dimen>
     <dimen name="dog_compass_view_height">270dp</dimen>
     <dimen name="text_compass_angle">20sp</dimen>
-    <dimen name="pointerLength">10dp</dimen>
+    <dimen name="pointerLength">40dp</dimen>
     <dimen name="logo_width">250dp</dimen>
     <dimen name="logo_height">250dp</dimen>
     <dimen name="margin_end_logo">30dp</dimen>

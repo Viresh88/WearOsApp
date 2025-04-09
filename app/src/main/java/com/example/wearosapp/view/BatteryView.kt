@@ -73,4 +73,3 @@ class BatteryView(context: Context, attrs: AttributeSet) : View(context, attrs) 
         canvas.drawRect(batteryHeadRect, paint)
     }
 }
-

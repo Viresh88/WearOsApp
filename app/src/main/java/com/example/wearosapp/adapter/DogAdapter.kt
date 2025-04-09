@@ -53,22 +53,32 @@ class DogAdapter(
                 handleSave(dog)
             }
 
-            val (bitmap, position) = dog.getDogIconBitmapWithStatus(context)
-            if (bitmap != null) {
-                binding.imageViewDog.setImageBitmap(bitmap)
+            // Hide the whole item if the dog's location is not valid.
+            if (dog.latitude == 0.0 && dog.longitude == 0.0) {
+                binding.itemContainer.visibility = View.GONE
             } else {
-                println("No bitmap available for position: $position")
-            }
+                binding.itemContainer.visibility = View.VISIBLE
 
-            if (position != 0 && position != 3) {
-                binding.textviewSpeed.visibility = View.VISIBLE
-                val speed = calculateDogSpeed(dog)
-                binding.textviewSpeed.text = speed
-            } else {
-                binding.textviewSpeed.visibility = View.GONE
-            }
+                // Set dog image (using your getDogIconBitmapWithStatus implementation)
+                val (bitmap, position) = dog.getDogIconBitmapWithStatus(context)
+                if (bitmap != null) {
+                    binding.imageViewDog.setImageBitmap(bitmap)
+                } else {
+                    println("No bitmap available for position: $position")
+                }
 
-            showOnlineDogInfo(dog)
+                // Show speed only if position value indicates (for example, if not equal to 0 or 3)
+                if (position != 0 && position != 3) {
+                    binding.textviewSpeed.visibility = View.VISIBLE
+                    val speed = calculateDogSpeed(dog)
+                    binding.textviewSpeed.text = speed
+                } else {
+                    binding.textviewSpeed.visibility = View.GONE
+                }
+
+                // Display online dog information (name, power, time, distance)
+                showOnlineDogInfo(dog)
+            }
         }
 
         @SuppressLint("SetTextI18n")
@@ -77,9 +87,15 @@ class DogAdapter(
             binding.textviewDogPower.text = "${dog.power}%"
             binding.textviewTime.text = getCurrentFormattedTime()
 
-            // Calculate and display the distance using the currentLocation property.
-            val distance = calculateDistance(dog)
-            binding.textviewDistance.text = distance
+            // Only display the distance if the dog's coordinates are valid.
+            if (dog.latitude == 0.0 && dog.longitude == 0.0) {
+                binding.itemContainer.visibility = View.GONE
+            } else {
+                // Calculate and display the distance regardless of selection state.
+                val distance = calculateDistance(dog)
+                binding.textviewDistance.text = distance
+                binding.textviewDistance.visibility = View.VISIBLE
+            }
         }
 
         fun getCurrentFormattedTime(): String {
@@ -90,17 +106,18 @@ class DogAdapter(
 
         private fun calculateDogSpeed(dog: Dog): String {
             val currentTime = System.currentTimeMillis()
-            // Ensure previous location values are valid.
-            if (dog.latitude != 0.0 && dog.longitude != 0.0) {
+            // Check that both the current and previous positions are valid.
+            if (dog.latitude != 0.0 && dog.longitude != 0.0 &&
+                dog.latitude != 0.0 && dog.longitude != 0.0) {
+
                 val currentDogLocation = Location("Dog").apply {
                     latitude = dog.latitude
                     longitude = dog.longitude
                 }
                 val previousDogLocation = Location("PreviousDog").apply {
                     latitude = dog.latitude
-                    longitude = dog.latitude
+                    longitude = dog.longitude
                 }
-
                 val results = FloatArray(1)
                 Location.distanceBetween(
                     previousDogLocation.latitude, previousDogLocation.longitude,
@@ -120,7 +137,6 @@ class DogAdapter(
             }
             return "Speed unavailable"
         }
-
 
         private fun calculateDistance(dog: Dog): String {
             val currentLocation = this@DogAdapter.currentLocation
@@ -145,7 +161,8 @@ class DogAdapter(
                     String.format("%.2fkm", km)
                 }
             } else {
-                return ""
+                // Provide a default message when location is unavailable.
+                return "Distance unavailable"
             }
         }
     }

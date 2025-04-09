@@ -69,32 +69,18 @@ class DogCompassView @JvmOverloads constructor(
         dogs.forEach { dog ->
             canvas.save()
             canvas.rotate(dog.angle, cx, cy)
-            val dogIconBitmap = dog.getDogIconBitmap(context)
-            if (dogIconBitmap != null) {
-                val dogIconWidth = dogIconBitmap.width
-                val dogIconHeight = dogIconBitmap.height
-                val iconLeft = cx - dogIconWidth / 2f
-                val iconTop = pointNorthTriangleLength + selectHeight
-                val iconRight = cx + dogIconWidth / 2f
-                val iconBottom = iconTop + dogIconHeight
+            if (dog.isSelected) {
+                val pointerLength = (selectHeight + dog.getDogIconBitmap(context)?.let { it.height }!! + context.resources.getDimension(R.dimen.pointerLength)) * 0.5f
 
-                canvas.drawBitmap(dogIconBitmap, null,
-                    RectF(iconLeft, iconTop, iconRight, iconBottom), paint)
+                val pointerColor = dog.getDominantColor(context)
+                paint.color = pointerColor
 
-                if (dog.isSelected) {
-                    val pointerLength = selectHeight + dogIconHeight +
-                            context.resources.getDimension(R.dimen.pointerLength)
-                    val pointerColor = dog.getDominantColor(context)
-                    paint.color = pointerColor
-
-                    // Reuse the class-level pointerPath
-                    pointerPath.reset()
-                    pointerPath.moveTo(cx - 8f, cy)
-                    pointerPath.lineTo(cx + 8f, cy)
-                    pointerPath.lineTo(cx, cy - pointerLength)
-                    pointerPath.close()
-                    canvas.drawPath(pointerPath, paint)
-                }
+                pointerPath.reset()
+                pointerPath.moveTo(cx - 8f, cy)
+                pointerPath.lineTo(cx + 8f, cy)
+                pointerPath.lineTo(cx, cy - pointerLength)
+                pointerPath.close()
+                canvas.drawPath(pointerPath, paint)
             }
             canvas.restore()
         }

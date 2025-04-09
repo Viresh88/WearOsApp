@@ -40,7 +40,6 @@ abstract class CompassView @JvmOverloads constructor(
         drawContent(canvas)
         canvas.restore()
 
-        // Mise à jour du texte de rotation
         rotationTextView.text = "${currentAngle.toInt()}°"
     }
 

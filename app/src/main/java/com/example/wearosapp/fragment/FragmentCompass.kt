@@ -215,10 +215,6 @@ class FragmentCompass : BaseFragment<FragmentCompassBinding>() {
         }
     }
 
-    /**
-     * Calculate and display dog pointers on the compass.
-     * Uses the currentLocation from the fused location provider instead of MapsFragment.
-     */
     private fun notifyDogPointer() {
         if (dogs.isNotEmpty() && currentLocation != null) {
             CoroutineScope(Dispatchers.IO).launch {
@@ -241,7 +237,9 @@ class FragmentCompass : BaseFragment<FragmentCompassBinding>() {
                 }
                 withContext(Dispatchers.Main) {
                     binding.dogCompassView.setDogPointer(tempDogPointer)
-                    binding.dogCompassView.invalidate()  // <-- Trigger redraw here
+                    binding.dogCompassView.invalidate()  // Trigger redraw.
+                    // **Update the adapter currentLocation:**
+                    adapterDog?.currentLocation = currentLocation
                     adapterDog?.notifyDataSetChanged()
                 }
             }
@@ -249,9 +247,7 @@ class FragmentCompass : BaseFragment<FragmentCompassBinding>() {
     }
 
 
-    /**
-     * Helper function to calculate the bearing (angle) between two geographic coordinates.
-     */
+
     private fun getAngle(
         userLat: Double,
         userLon: Double,
