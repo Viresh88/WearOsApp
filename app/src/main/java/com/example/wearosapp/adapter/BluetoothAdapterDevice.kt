@@ -1,6 +1,10 @@
 package com.example.wearosapp.adapter
 
+import android.content.Context
 import android.graphics.Color
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -85,9 +89,24 @@ class BluetoothAdapterDevice(
 
         override fun onClick(view: View?) {
             val position = bindingAdapterPosition
-            view?.let {
+
+            // 1. Visual bounce
+            view?.animate()?.scaleX(0.95f)?.scaleY(0.95f)?.setDuration(100)?.withEndAction {
+                view.animate().scaleX(1f).scaleY(1f).duration = 100
+
+                // 2. Vibration
+                val vibrator = itemView.context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    vibrator.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE))
+                } else {
+                    @Suppress("DEPRECATION")
+                    vibrator.vibrate(50)
+                }
+
+                // 3. Trigger BLE connect logic
                 itemClicked(position)
-            }
+            }?.start()
+
         }
     }
 }

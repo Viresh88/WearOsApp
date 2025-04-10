@@ -6,6 +6,8 @@
 
     <corners android:radius="32dp" /> <!-- Adjust radius as needed -->
 
-
+    <stroke
+        android:width="2dp"
+        android:color="#CCCCCC" /> <!-- optional border -->
 
 </shape>

@@ -1,10 +1,15 @@
 package com.example.wearosapp
 
+import android.content.Context
 import android.os.Bundle
+import android.os.PowerManager
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -24,20 +29,21 @@ class MainActivity : AppCompatActivity() {
     private var viewModel: DogViewModel? = null
     private var bluetooth: MenuItem? = null
     private val deviceMutableList = ArrayList<Device>()
+    private lateinit var wakeLock: PowerManager.WakeLock
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        BluetoothManagerClass.disconnect()  // This will call callbacks to mark disconnection.
-        // Optionally clear shared preferences:
-        SharedPreferencesUtils.putString(this, "LastConnectedDevice", "")
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController
         configureViewModel()
+
         BluetoothManagerClass.initializeBluetooth(this)
+        wakeManager()
+        getDevicesFromDatabase()
         window.decorView.systemUiVisibility =
             View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
         actionBar?.hide()
@@ -71,6 +77,40 @@ class MainActivity : AppCompatActivity() {
         BluetoothManagerClass.initializeBluetooth(this)
         viewModel?.let { FormatCommand.setViewModel(it) }
         FormatCommand.setContext(this)
+    }
+
+    private fun <T> LiveData<T>.observeOnce(owner: LifecycleOwner, observer: Observer<T>) {
+        observe(owner, object : Observer<T> {
+            override fun onChanged(value: T) {
+                observer.onChanged(value)
+                removeObserver(this)
+            }
+        })
+    }
+
+    private fun getDevicesFromDatabase() {
+        viewModel?.getAllDevices()?.observeOnce(this) { devices ->
+            deviceMutableList.clear()
+            deviceMutableList.addAll(devices.map { it.apply { status = false } })
+            updateStatus()
+        }
+    }
+
+    private fun wakeManager() {
+        val powerManager = getSystemService(Context.POWER_SERVICE) as PowerManager
+        wakeLock = powerManager.newWakeLock(
+            PowerManager.FULL_WAKE_LOCK or PowerManager.ON_AFTER_RELEASE,
+            "MonApplication:WakeLock"
+        )
+    }
+
+    private fun updateStatus() {
+        deviceMutableList.forEach { device ->
+            device.bluetoothStatus = getString(R.string.disconnect)
+            device.status = false
+            viewModel?.updateDevice(device)
+            BluetoothManagerClass.disconnect()
+        }
     }
 }
 

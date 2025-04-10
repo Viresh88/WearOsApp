@@ -1,77 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<androidx.wear.widget.BoxInsetLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="35dp"
-    android:padding="8dp"
-    android:layout_marginTop="5dp"
-    android:layout_margin="7dp"
-    android:background="@drawable/border_background">
+    android:layout_height="wrap_content"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp"
+    android:paddingTop="6dp"
+    android:paddingBottom="6dp"
+    android:background="@drawable/border_background_bluetooth">
 
-
-    <ImageView
-        android:id="@+id/image_view_bluetooth"
-        android:layout_width="20dp"
-        android:layout_height="18dp"
-        android:src="@drawable/ic_round_bluetooth_24"
-        android:contentDescription="bluetooth_icon"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
-
-    <!-- Settings Icon on the right -->
-    <ImageView
-        android:id="@+id/bluetooth_settings_icon"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:src="@drawable/ic_outline_settings_24"
-        android:contentDescription="@string/settings"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginEnd="8dp" />
-
-    <!-- Device Name TextView (to the right of Bluetooth icon, left of settings icon) -->
-    <TextView
-        android:id="@+id/deviceName"
-        android:layout_width="0dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Device Name"
-        android:textSize="7sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/black"
-        app:layout_constraintStart_toEndOf="@id/image_view_bluetooth"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/bluetooth_settings_icon"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
-    <!-- Connection Status TextView below Device Name -->
-    <TextView
-        android:id="@+id/connectStatus"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Status"
-        android:textSize="7sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/black"
-        app:layout_constraintStart_toStartOf="@id/deviceName"
-        app:layout_constraintEnd_toEndOf="@id/deviceName"
-        app:layout_constraintTop_toBottomOf="@id/deviceName"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginTop="4dp"/>
+        <ImageView
+            android:id="@+id/image_view_bluetooth"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_round_bluetooth_24"
+            />
 
-    <View
-        android:id="@+id/divider"
-        android:layout_width="1dp"
-        android:layout_height="0dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp"
-        android:background="?android:attr/listDivider"
-        app:layout_constraintBottom_toBottomOf="@id/connectStatus"
-        app:layout_constraintTop_toTopOf="@id/deviceName"
-        app:layout_constraintEnd_toStartOf="@id/bluetooth_settings_icon"
-        />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <Space
+            android:layout_width="6dp"
+            android:layout_height="0dp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/deviceName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Device Name"
+                android:textSize="10sp"
+                android:textColor="@android:color/black"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/connectStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Connected"
+                android:textSize="8sp"
+                android:textColor="@android:color/black" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/bluetooth_settings_icon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_outline_settings_24"
+            android:contentDescription="@string/settings" />
+    </LinearLayout>
+</androidx.wear.widget.BoxInsetLayout>

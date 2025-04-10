@@ -104,39 +104,60 @@ class DogAdapter(
             return dateFormat.format(calendar.time)
         }
 
-        private fun calculateDogSpeed(dog: Dog): String {
+        fun calculateDogSpeed(dog: Dog): String {
+
+
             val currentTime = System.currentTimeMillis()
-            // Check that both the current and previous positions are valid.
-            if (dog.latitude != 0.0 && dog.longitude != 0.0 &&
-                dog.latitude != 0.0 && dog.longitude != 0.0) {
 
-                val currentDogLocation = Location("Dog").apply {
-                    latitude = dog.latitude
-                    longitude = dog.longitude
-                }
-                val previousDogLocation = Location("PreviousDog").apply {
-                    latitude = dog.latitude
-                    longitude = dog.longitude
-                }
-                val results = FloatArray(1)
-                Location.distanceBetween(
-                    previousDogLocation.latitude, previousDogLocation.longitude,
-                    currentDogLocation.latitude, currentDogLocation.longitude,
-                    results
-                )
-                val distance = results[0]
-                val timeDifference = (currentTime - dog.time) / 1000.0 // in seconds
+            // Check if current position is available
+            if (dog.latitude != 0.0 && dog.longitude!= 0.0) {
 
-                return if (timeDifference > 0) {
-                    val speedInMetersPerSecond = distance / timeDifference
-                    val speedInKmh = speedInMetersPerSecond * 3.6
-                    String.format("%.2f km/h", speedInKmh)
+                // Create a Location object for the dog's current position
+                val dogLocation = Location("Dog")
+                dogLocation.latitude = dog.latitude
+                dogLocation.longitude = dog.longitude
+
+                // Check if previous position is valid (not 0.0 for both latitude and longitude)
+                if (dog.preLatitude != 0.0 && dog.preLongitude != 0.0) {
+                    // Create a Location object for the dog's previous position
+                    val previousDogLocation = Location("PreviousDog")
+                    previousDogLocation.latitude = dog.preLatitude
+                    previousDogLocation.longitude = dog.preLongitude
+
+                    // Calculate the distance between the previous and current positions
+                    val results = FloatArray(1)
+                    Location.distanceBetween(
+                        previousDogLocation.latitude, previousDogLocation.longitude,
+                        dogLocation.latitude, dogLocation.longitude,
+                        results
+                    )
+                    val distance = results[0]
+
+                    // Calculate the time difference in seconds
+                    val timeDifference = (currentTime - dog.time) / 1000.0 // Time difference in seconds
+
+                    // Avoid division by zero if the time difference is too small (i.e., dog hasn't moved)
+                    if (timeDifference > 0) {
+                        // Calculate the speed in meters per second
+                        val speed = distance / timeDifference
+
+                        // Convert speed to kilometers per hour
+                        val speedInKmh = speed * 3.6 // Convert meters per second to kilometers per hour
+                        return String.format("%.2f km/h", speedInKmh)
+                    } else {
+                        // If timeDifference is 0 or too small, return "Speed unavailable"
+                        return "Speed unavailable"
+                    }
                 } else {
-                    "Speed unavailable"
+                    // If previous location is invalid, return "Speed unavailable"
+                    return "Speed unavailable"
                 }
             }
+
+            // If current position is not available, return "Speed unavailable"
             return "Speed unavailable"
         }
+
 
         private fun calculateDistance(dog: Dog): String {
             val currentLocation = this@DogAdapter.currentLocation

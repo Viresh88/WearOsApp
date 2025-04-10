@@ -198,13 +198,14 @@ class DogViewModel(
             val dogToUpdateIndex = dogs.indexOfFirst { it.imei == dogTrajectory.imei }
             if (dogToUpdateIndex != -1) {
                 val dogToUpdate = dogs[dogToUpdateIndex]
-                dogToUpdate.latitude =  dogToUpdate.latitude
-                dogToUpdate.longitude =  dogToUpdate.longitude
+                dogToUpdate.preLatitude =  dogToUpdate.latitude
+                dogToUpdate.preLongitude =  dogToUpdate.longitude
                 dogToUpdate.latitude = dogTrajectory.latitude
                 dogToUpdate.longitude = dogTrajectory.longitude
                 dogToUpdate.power = dogTrajectory.batteryPower
                 dogToUpdate.status = dogTrajectory.status
                 dogToUpdate.time = dogTrajectory.dateTime
+
                 updateDog(dogToUpdate)
                 // Notify UI of updated dog data
                 FormatCommand.onFormatData?.onDogData(dogs)
