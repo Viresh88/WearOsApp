@@ -25,5 +25,5 @@ interface BluetoothEventCallback {
     fun onScanFailed(errorCode: Int)
 
     fun onDogUpdate(){}
-
 }
+

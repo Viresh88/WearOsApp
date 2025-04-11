@@ -1,77 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.wear.widget.BoxInsetLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?android:selectableItemBackground"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp">
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp"
+    android:paddingTop="6dp"
+    android:paddingBottom="6dp"
+    android:background="@drawable/border_background_bluetooth">
 
-    <ImageView
-        android:id="@+id/parameter_bluetooth"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="20dp"
-        android:contentDescription="@string/bluetooth"
-        app:layout_constraintBottom_toBottomOf="@+id/image_view_bluetooth"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/divider"
-        app:layout_constraintTop_toTopOf="@+id/image_view_bluetooth"
-        app:srcCompat="@drawable/ic_outline_settings_24"
-        tools:ignore="ImageContrastCheck" />
-
-    <ImageView
-        android:id="@+id/image_view_bluetooth"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:layout_marginStart="20dp"
-        android:contentDescription="@string/bluetooth"
-        android:src="@drawable/round_bluetooth_24"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="ImageContrastCheck" />
-
-    <TextView
-        android:id="@+id/deviceName"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:textColor="@color/black"
-        android:textSize="17sp"
-        app:layout_constraintBottom_toBottomOf="@+id/image_view_bluetooth"
-        app:layout_constraintStart_toEndOf="@+id/image_view_bluetooth"
-        app:layout_constraintTop_toTopOf="@+id/image_view_bluetooth" />
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
 
-    <TextView
-        android:id="@+id/connectStatus"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="5dp"
-        android:paddingBottom="10dp"
-        android:textColor="@color/black"
-        android:textSize="11sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/image_view_bluetooth"
-        app:layout_constraintEnd_toStartOf="@+id/divider"
-        app:layout_constraintTop_toTopOf="@+id/image_view_bluetooth" />
+        <ImageView
+            android:id="@+id/image_view_bluetooth"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_round_bluetooth_24"
+            />
 
-    <View
-        android:id="@+id/divider"
-        android:layout_width="1dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:background="?android:attr/listDivider"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/connectStatus"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        <Space
+            android:layout_width="6dp"
+            android:layout_height="0dp" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/deviceName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Device Name"
+                android:textSize="10sp"
+                android:textColor="@android:color/black"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/connectStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Connected"
+                android:textSize="8sp"
+                android:textColor="@android:color/black" />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/bluetooth_settings_icon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_outline_settings_24"
+            android:contentDescription="@string/settings" />
+    </LinearLayout>
+</androidx.wear.widget.BoxInsetLayout>

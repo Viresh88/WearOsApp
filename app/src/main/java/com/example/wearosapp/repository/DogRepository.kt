@@ -45,6 +45,7 @@ class DogRepository (private var dogDao: DogDao?) {
         return dogs
     }
 
+
     suspend fun updateDogs(dogs: List<Dog>) {
         dogDao?.updateDogs(dogs)
     }

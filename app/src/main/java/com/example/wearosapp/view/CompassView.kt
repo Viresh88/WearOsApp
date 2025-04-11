@@ -10,6 +10,7 @@ import android.os.Looper
 import android.util.AttributeSet
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import android.view.View
 import android.widget.TextView
 import com.example.wearosapp.R
 import kotlin.math.abs
@@ -39,7 +40,6 @@ abstract class CompassView @JvmOverloads constructor(
         drawContent(canvas)
         canvas.restore()
 
-        // Mise à jour du texte de rotation
         rotationTextView.text = "${currentAngle.toInt()}°"
     }
 
@@ -109,3 +109,4 @@ abstract class CompassView @JvmOverloads constructor(
         drawHandler.postDelayed({ draw() }, 5)
     }
 }
+

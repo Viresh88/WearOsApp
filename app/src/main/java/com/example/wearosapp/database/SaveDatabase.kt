@@ -31,7 +31,6 @@ abstract class SaveDatabase : RoomDatabase() {
     companion object {
         @Volatile
         private var INSTANCE: SaveDatabase? = null
-
         fun getInstance(context: Context): SaveDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(context.applicationContext,
@@ -42,8 +41,5 @@ abstract class SaveDatabase : RoomDatabase() {
                 instance
             }
         }
-
     }
-
-
 }

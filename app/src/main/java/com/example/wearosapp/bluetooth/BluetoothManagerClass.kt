@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.example.wearosapp.bluetooth
 
 import android.annotation.SuppressLint
@@ -27,35 +29,36 @@ import com.example.wearosapp.model.DogTrajectory
 import com.example.wearosapp.ui.utils.SharedPreferencesUtils
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.collections.remove
 
 
 @SuppressLint("MissingPermission" , "StaticFieldLeak")
 object BluetoothManagerClass {
 
-    private lateinit var context : Context
+    private lateinit var context: Context
     private var password: String = ""
     private val UUID_SERVICE = UUID.fromString("0000AB00-0000-1000-8000-00805F9B34FB")
     private val UUID_NOTIFY = UUID.fromString("0000AB02-0000-1000-8000-00805F9B34FB")
     private val UUID_WRITE = UUID.fromString("0000AB01-0000-1000-8000-00805F9B34FB")
     private val UUID_DESCRIPTOR = UUID.fromString("00002A05-0000-1000-8000-00805F9B34FB")
     private var bleDevice: BluetoothDevice? = null
-    private val deviceGattMap = ConcurrentHashMap<BluetoothDevice, BluetoothGatt>()
+    private val deviceGattMap = ConcurrentHashMap<BluetoothDevice , BluetoothGatt>()
     var bluetoothEventCallbacks = ArrayList<BluetoothEventCallback>()
     private var characteristicNotify: BluetoothGattCharacteristic? = null
     private var characteristicWrite: BluetoothGattCharacteristic? = null
 
     private val bluetoothAdapter: BluetoothAdapter by lazy {
-        val bluetoothManager =
-            context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+        val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         bluetoothManager.adapter
     }
 
     private fun BluetoothDevice.isConnected() = deviceGattMap.containsKey(this)
 
     init {
+
         bluetoothEventCallbacks = ArrayList()
 
-        FormatCommand.onFormatData = object : OnFormatData{
+        FormatCommand.onFormatData = object : OnFormatData {
             override fun onData(data: String) {
                 if (data.isNotEmpty()) bluetoothEventCallbacks.forEach { it.onNotifyFormat(data) }
             }
@@ -68,7 +71,7 @@ object BluetoothManagerClass {
                 bluetoothEventCallbacks.forEach { it.onGpsData(trajectory) }
             }
 
-            override fun onIncorrectPassword() {
+            override fun onCorrectPassword() {
                 writeData(KeyCommand.CONNECT)
                 this@BluetoothManagerClass.bleDevice?.let {
                     SharedPreferencesUtils.putString(this@BluetoothManagerClass.context , it.address!! , password)
@@ -77,7 +80,7 @@ object BluetoothManagerClass {
                 bluetoothEventCallbacks.forEach { it.onConnectDeviceSuccess(bleDevice) }
             }
 
-            override fun onCorrectPassword() {
+            override fun onIncorrectPassword() {
                 this@BluetoothManagerClass.bleDevice?.let { SharedPreferencesUtils.remove(this@BluetoothManagerClass.context , it.address!!) }
                 val gatt = bleDevice?.let { deviceGattMap[it] }
                 gatt?.let { disableNotification(it , characteristicNotify!!) }
@@ -100,7 +103,6 @@ object BluetoothManagerClass {
             override fun onUpdateDog() {
                 bluetoothEventCallbacks.forEach { it.onDogUpdate() }
             }
-
         }
     }
 
@@ -124,6 +126,19 @@ object BluetoothManagerClass {
         stopScanAfterDelay()
     }
 
+//    fun startScan() {
+//        val bluetoothLeScanner = bluetoothAdapter.bluetoothLeScanner
+//        val scanCallback = createScanCallback()
+//        val scanSettings = ScanSettings.Builder()
+//            .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+//            .build()
+//
+//        // Start scanning without filters by passing null as the first argument
+//        bluetoothLeScanner?.startScan(null, scanSettings, scanCallback)
+//        this.bluetoothEventCallbacks.forEach { it.onScanStarted() }
+//        stopScanAfterDelay()
+//    }
+
     private fun stopScanAfterDelay() {
         Handler(Looper.getMainLooper()).postDelayed({
             stopScan()
@@ -138,25 +153,31 @@ object BluetoothManagerClass {
     }
 
     fun connect(mac: String) {
-        disconnect()
-        val bluetoothDevice = bluetoothAdapter.getRemoteDevice(mac)
-        bleDevice = bluetoothDevice
-        val gattCallback = createGattCallback()
-        var gatt: BluetoothGatt? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            bluetoothDevice?.connectGatt(context, true, gattCallback,BluetoothDevice.TRANSPORT_LE)
-        } else {
-            bluetoothDevice?.connectGatt(context, true, gattCallback)
-        }
+        try {
+            val bluetoothDevice = bluetoothAdapter.getRemoteDevice(mac)
+            bleDevice = bluetoothDevice
 
-        if (gatt != null) {
-            deviceGattMap[bluetoothDevice] = gatt
-        } else {
-            this.bluetoothEventCallbacks.forEach {
-                this@BluetoothManagerClass.bleDevice = null
-                it.onConnectFail(bleDevice)
+            val gattCallback = createGattCallback()
+
+            val gatt = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                bluetoothDevice.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE)
+            } else {
+                bluetoothDevice.connectGatt(context, false, gattCallback)
             }
+
+            if (gatt != null) {
+                deviceGattMap[bluetoothDevice] = gatt
+            } else {
+                this.bleDevice = null
+                bluetoothEventCallbacks.forEach { it.onConnectFail(bleDevice) }
+            }
+        } catch (e: IllegalArgumentException) {
+            Log.e("BluetoothManager", "Invalid MAC address: $mac", e)
+            bleDevice = null
+            bluetoothEventCallbacks.forEach { it.onConnectFail(bleDevice) }
         }
     }
+
 
     fun disconnect() {
         val gatt = bleDevice?.let { deviceGattMap[it] }
@@ -164,9 +185,12 @@ object BluetoothManagerClass {
             gatt.disconnect()
             gatt.close()
             deviceGattMap.remove(bleDevice)
+            // Clear the current device info so that a new connection will not show old data.
+            SharedPreferencesUtils.putString(context, "LastConnectedDevice", "")
             bluetoothEventCallbacks.forEach { callback ->
                 callback.onDisconnected(false, bleDevice)
             }
+            bleDevice = null
         }
     }
 
@@ -240,6 +264,7 @@ object BluetoothManagerClass {
                     disconnect()
                 }
             }
+
             override fun onDescriptorWrite(
                 gatt: BluetoothGatt?,
                 descriptor: BluetoothGattDescriptor?,
@@ -299,6 +324,8 @@ object BluetoothManagerClass {
         }
     }
 
+
+
     fun sendPassword(pwd: String) {
         password = pwd
         val data = "Pass#$pwd\r\n"
@@ -320,6 +347,4 @@ object BluetoothManagerClass {
     fun writeData(data: String) {
         write((data + "\r\n").toByteArray())
     }
-
-
 }

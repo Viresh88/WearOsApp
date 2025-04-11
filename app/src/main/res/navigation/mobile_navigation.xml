@@ -1,0 +1,29 @@
+<!-- mobile_navigation.xml -->
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@id/nav_blue">
+
+    <fragment
+        android:id="@+id/nav_blue"
+        android:name="com.example.wearosapp.fragment.FragmentBluetooth"
+        android:label="@string/bluetooth"
+        tools:layout="@layout/fragment_bluetooth">
+
+        <action
+            android:id="@+id/action_blue_to_compass"
+            app:destination="@id/nav_compass" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_compass"
+        android:name="com.example.wearosapp.fragment.FragmentCompass"
+        android:label="@string/compass"
+        tools:layout="@layout/fragment_compass">
+
+        <action
+            android:id="@+id/action_compass_to_blue"
+            app:destination="@id/nav_blue" />
+    </fragment>
+</navigation>

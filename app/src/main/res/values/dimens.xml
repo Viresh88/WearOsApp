@@ -7,7 +7,7 @@
     <dimen name="fab_margin">20dp</dimen>
     <dimen name="dog_compass_view_height">270dp</dimen>
     <dimen name="text_compass_angle">20sp</dimen>
-    <dimen name="pointerLength">10dp</dimen>
+    <dimen name="pointerLength">40dp</dimen>
     <dimen name="logo_width">250dp</dimen>
     <dimen name="logo_height">250dp</dimen>
     <dimen name="margin_end_logo">30dp</dimen>
@@ -44,10 +44,10 @@
     <dimen name="wear_inset_padding">10dp</dimen>
 
     <color name="wear_background">#000000</color>
-    <color name="light_orange">#FFA500</color>
+    <color name="light_orange">#FF4D00</color>
     <color name="grey_line_color">#888888</color>
     <dimen name="compass_margin">16dp</dimen>
     <dimen name="list_margin">8dp</dimen>
     <dimen name="list_bottom_padding">16dp</dimen>
-    <dimen name="rotation_text_size">14sp</dimen>
+    <dimen name="rotation_text_size">10sp</dimen>
 </resources>

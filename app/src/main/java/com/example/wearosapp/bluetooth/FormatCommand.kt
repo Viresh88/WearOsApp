@@ -97,7 +97,7 @@ object FormatCommand {
                 val ver = data.substring(indexOf + 1 , data.length)
                 deviceVer = ver
                 val logMessage = "Command: VER, Version: $ver"
-                writeLog(logMessage)
+                //writeLog(logMessage)
             }
 
             KeyCommand.F04 -> {
@@ -106,7 +106,7 @@ object FormatCommand {
                 if (split.size >= 2) {
                     val dogData = split[1]
                     val logMessage = "Command: F04, Version: $dogData"
-                    writeLog(logMessage)
+                   // writeLog(logMessage)
                     if (dogData.contains(",")) {
                         val dogSplit = dogData.split(",")
                         val dogImei = dogSplit[0].trim()
@@ -137,7 +137,7 @@ object FormatCommand {
             KeyCommand.F03 -> {
                 val split = data.split("#")
                 val logMessage = "Command: F03, Version: $data"
-                writeLog(logMessage)
+                //writeLog(logMessage)
                 if (split.size >= 2) {
                     val dogImei = split[1]
                     val dog = dogs.singleOrNull { it.imei == dogImei }
@@ -200,7 +200,7 @@ object FormatCommand {
 
             KeyCommand.F01 -> {
                 val logMessage = "Command: F01, Version: $data"
-                writeLog(logMessage)
+               // writeLog(logMessage)
                 dataList.add(data.substring(indexOf + 1 , indexOf + 2))
                 val split = data.split("|")
                 if (split.size >= 2) {
@@ -218,7 +218,7 @@ object FormatCommand {
 
             KeyCommand.GPS -> {
                 val logMessage = "Command: GPS, Version: $data"
-                writeLog(logMessage)
+               // writeLog(logMessage)
                 dataList.add(data.substring(indexOf + 1 , indexOf + 16))
                 val split = data.split(",")
                 if (split.size < 7) return

@@ -1,6 +1,7 @@
 package com.example.wearosapp.viewmodel
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
@@ -25,21 +26,20 @@ import kotlinx.coroutines.withContext
 import java.util.concurrent.Executor
 
 class DogViewModel(
-    private val dogRepository: DogRepository?,
-    private val deviceRepository: DeviceRepository?,
-    private val trajectoryRepository: TrajectoryRepository?,
-    private val positionRepository: PositionRepository?,
-    private val fenceRepository: FenceRepository?,
-    private val markerRepository: MarkerRepository?,
+    private val dogRepository: DogRepository? ,
+    private val deviceRepository: DeviceRepository? ,
+    private val trajectoryRepository: TrajectoryRepository? ,
+    private val positionRepository: PositionRepository? ,
+    private val fenceRepository: FenceRepository? ,
+    private val markerRepository: MarkerRepository? ,
     private val executor: Executor?
-
-) : ViewModel(){
-
+) : ViewModel() {
     private val coroutineScope = CoroutineScope(Dispatchers.Default)
     private var listDog = mutableListOf<Dog>()
     private var updatedDogList = mutableListOf<Dog>()
     private val allDevices = deviceRepository?.getDevices()?.asLiveData()
     private val allDogs = dogRepository?.getDog()
+    private val _selectedDog = MutableLiveData<Dog?>()
 
     fun updateAllDogs(updatedDogs: List<Dog>) {
         coroutineScope.launch {
@@ -87,6 +87,8 @@ class DogViewModel(
                 val latitudeChanged = existingDog.latitude != updatedDog.latitude && updatedDog.latitude != 0.0
                 val longitudeChanged = existingDog.longitude != updatedDog.longitude && updatedDog.longitude != 0.0
                 if (latitudeChanged || longitudeChanged) {
+                    existingDog.latitude = existingDog.latitude
+                    existingDog.longitude = existingDog.longitude
                     existingDog.latitude = updatedDog.latitude
                     existingDog.longitude = updatedDog.longitude
                 }
@@ -95,6 +97,7 @@ class DogViewModel(
             }
         }
     }
+
 
     fun deleteAllDogs() {
         executor?.execute {
@@ -189,17 +192,21 @@ class DogViewModel(
         }
     }
 
+
     fun updateDogTrajectory(dogTrajectory: DogTrajectory, dogs: ArrayList<Dog>) {
         coroutineScope.launch {
             val dogToUpdateIndex = dogs.indexOfFirst { it.imei == dogTrajectory.imei }
             if (dogToUpdateIndex != -1) {
                 val dogToUpdate = dogs[dogToUpdateIndex]
+                dogToUpdate.preLatitude =  dogToUpdate.latitude
+                dogToUpdate.preLongitude =  dogToUpdate.longitude
                 dogToUpdate.latitude = dogTrajectory.latitude
                 dogToUpdate.longitude = dogTrajectory.longitude
                 dogToUpdate.power = dogTrajectory.batteryPower
                 dogToUpdate.status = dogTrajectory.status
                 dogToUpdate.time = dogTrajectory.dateTime
 
+                updateDog(dogToUpdate)
                 // Notify UI of updated dog data
                 FormatCommand.onFormatData?.onDogData(dogs)
             }
@@ -212,6 +219,7 @@ class DogViewModel(
             updateAllDogs(dogs)
         }
     }
+
 
     fun getAllTrajectory(): LiveData<List<DogTrajectory>>? {
         return trajectoryRepository?.getTrajectory()?.asLiveData()
@@ -288,6 +296,4 @@ class DogViewModel(
             deviceRepository?.updateLastConnectedDevices(address)
         }
     }
-
-
 }

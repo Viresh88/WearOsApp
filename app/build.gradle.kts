@@ -14,15 +14,14 @@ android {
     }
 
     namespace = "com.example.wearosapp"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.wearosapp"
         minSdk = 30
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
-
+        versionCode = 2
+        versionName = "1.1"
     }
 
     buildTypes {
@@ -49,11 +48,7 @@ android {
         viewBinding = true
         dataBinding = true
     }
-
-
-
 }
-
 
 dependencies {
 
@@ -72,6 +67,11 @@ dependencies {
     implementation(libs.foundation.android)
     implementation(libs.play.services.maps)
     implementation(libs.ui.test.android)
+    implementation(libs.androidthings)
+    implementation(libs.media3.common.ktx)
+    implementation(libs.navigation.fragment.ktx)
+    implementation(libs.navigation.ui.ktx)
+    implementation(libs.play.services.location)
     ksp("androidx.room:room-compiler:2.5.0")
     implementation("androidx.palette:palette-ktx:1.0.0")
 
@@ -106,17 +106,14 @@ dependencies {
 
 
     implementation("io.reactivex.rxjava3:rxandroid:3.0.0")
-
-    //TEST
-    testImplementation("junit:junit:4.13.2")
-    androidTestImplementation("androidx.test.ext:junit:1.2.1")
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
-
-
-    implementation("androidx.cardview:cardview:1.0.0")
+//
+//    //TEST
+//    testImplementation("junit:junit:4.13.2")
+//    androidTestImplementation("androidx.test.ext:junit:1.2.1")
+//    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+//    implementation("androidx.cardview:cardview:1.0.0")
 
 }
-
 
 
 
