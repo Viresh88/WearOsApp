@@ -1,7 +1,9 @@
 package com.example.wearosapp.adapter
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -33,6 +35,7 @@ class BluetoothAdapterDevice(
         return data.size
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     class ViewHolder(
         private val binding: ItemBluetoothBinding,
         private val itemClicked: (position: Int) -> Unit,
@@ -44,9 +47,13 @@ class BluetoothAdapterDevice(
 
         init {
             itemView.setOnClickListener(this)
-            binding.bluetoothSettingsIcon.setOnClickListener {
-                val position = bindingAdapterPosition
-                parameterClicked(position)
+
+            binding.bluetoothSettingsIcon.setOnTouchListener { _, event ->
+                if (event.action == MotionEvent.ACTION_DOWN) {
+                    parameterClicked(bindingAdapterPosition)
+                    return@setOnTouchListener true // consume the touch
+                }
+                false
             }
         }
 

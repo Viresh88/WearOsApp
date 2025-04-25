@@ -419,12 +419,8 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
             }
 
             dialogBinding.textViewConnected.setOnClickListener {
-                if (bluetoothDevice.status) {
-                    Toast.makeText(requireContext(), getString(R.string.already_connect), Toast.LENGTH_SHORT).show()
-                } else {
-                    bluetoothDevice.address?.let { address ->
-                        BluetoothManagerClass.connect(address)
-                    }
+                bluetoothDevice.address?.let { address ->
+                    BluetoothManagerClass.connect(address)
                 }
                 dialogBuilder.dismiss()
             }
@@ -476,7 +472,6 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
     }
 
 
-
     override fun onResume() {
         super.onResume()
         // Clear out old BLE device data when the fragment resumes
@@ -485,7 +480,6 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
         stopScan()
         promptEnableBluetooth()
     }
-
 
     companion object {
         const val ENABLE_BLUETOOTH_REQUEST_CODE = 1
