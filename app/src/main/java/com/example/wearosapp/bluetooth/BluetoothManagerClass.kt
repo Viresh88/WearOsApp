@@ -153,24 +153,31 @@ object BluetoothManagerClass {
     }
 
     fun connect(mac: String) {
-        disconnect()
-        val bluetoothDevice = bluetoothAdapter.getRemoteDevice(mac)
-        bleDevice = bluetoothDevice
-        val gattCallback = createGattCallback()
-        var gatt: BluetoothGatt? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            bluetoothDevice?.connectGatt(context, true, gattCallback,BluetoothDevice.TRANSPORT_LE)
-        } else {
-            bluetoothDevice?.connectGatt(context, true, gattCallback)
-        }
-        if (gatt != null) {
-            deviceGattMap[bluetoothDevice] = gatt
-        } else {
-            this.bluetoothEventCallbacks.forEach {
-                this@BluetoothManagerClass.bleDevice = null
-                it.onConnectFail(bleDevice)
+        try {
+            val bluetoothDevice = bluetoothAdapter.getRemoteDevice(mac)
+            bleDevice = bluetoothDevice
+
+            val gattCallback = createGattCallback()
+
+            val gatt = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                bluetoothDevice.connectGatt(context, false, gattCallback, BluetoothDevice.TRANSPORT_LE)
+            } else {
+                bluetoothDevice.connectGatt(context, false, gattCallback)
             }
+
+            if (gatt != null) {
+                deviceGattMap[bluetoothDevice] = gatt
+            } else {
+                this.bleDevice = null
+                bluetoothEventCallbacks.forEach { it.onConnectFail(bleDevice) }
+            }
+        } catch (e: IllegalArgumentException) {
+            Log.e("BluetoothManager", "Invalid MAC address: $mac", e)
+            bleDevice = null
+            bluetoothEventCallbacks.forEach { it.onConnectFail(bleDevice) }
         }
     }
+
 
     fun disconnect() {
         val gatt = bleDevice?.let { deviceGattMap[it] }
@@ -178,12 +185,9 @@ object BluetoothManagerClass {
             gatt.disconnect()
             gatt.close()
             deviceGattMap.remove(bleDevice)
-            // Clear the current device info so that a new connection will not show old data.
-            SharedPreferencesUtils.putString(context, "LastConnectedDevice", "")
             bluetoothEventCallbacks.forEach { callback ->
                 callback.onDisconnected(false, bleDevice)
             }
-            bleDevice = null
         }
     }
 
@@ -224,12 +228,12 @@ object BluetoothManagerClass {
                 newState: Int
             ) {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
-                    val macAddress = SharedPreferencesUtils.getString(this@BluetoothManagerClass.context , "LastConnectedDevice" ?: "", "")
-                    if (!macAddress.isNullOrEmpty()) {
+                    //val macAddress = SharedPreferencesUtils.getString(this@BluetoothManagerClass.context , "LastConnectedDevice" ?: "", "")
+
                         bluetoothEventCallbacks.forEach {
                             it.onConnectDeviceSuccess(bleDevice)
                         }
-                    }
+
                     gatt?.discoverServices()
 
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {

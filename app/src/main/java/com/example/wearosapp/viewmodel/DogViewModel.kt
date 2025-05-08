@@ -205,6 +205,7 @@ class DogViewModel(
                 dogToUpdate.power = dogTrajectory.batteryPower
                 dogToUpdate.status = dogTrajectory.status
                 dogToUpdate.time = dogTrajectory.dateTime
+
                 updateDog(dogToUpdate)
                 // Notify UI of updated dog data
                 FormatCommand.onFormatData?.onDogData(dogs)

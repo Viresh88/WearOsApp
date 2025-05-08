@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
@@ -16,11 +17,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
+import androidx.wear.widget.WearableLinearLayoutManager
 import com.example.wearosapp.R
 import com.example.wearosapp.adapter.DogAdapter
 import com.example.wearosapp.base.BaseFragment
 import com.example.wearosapp.bluetooth.BluetoothManagerClass
 import com.example.wearosapp.databinding.FragmentCompassBinding
+import com.example.wearosapp.fragment.FragmentBluetooth.CustomScrollingLayoutCallback
 import com.example.wearosapp.helper.SensorHelper
 import com.example.wearosapp.injection.Injection
 import com.example.wearosapp.injection.ViewModelFactory
@@ -156,6 +159,7 @@ class FragmentCompass : BaseFragment<FragmentCompassBinding>() {
                         this@FragmentCompass.dogs.clear()
                         this@FragmentCompass.dogs.addAll(filteredDogs)
                         notifyDogPointer()
+                        adapterDog!!.notifyDataSetChanged()
                     }
                 }
             }
@@ -168,16 +172,57 @@ class FragmentCompass : BaseFragment<FragmentCompassBinding>() {
         }
     }
 
+    class CustomScrollingLayoutCallback : WearableLinearLayoutManager.LayoutCallback() {
+
+        private val maxShrinkAmount = 0.15f // Max 15% shrink
+        private val shrinkEdgeThreshold = 0.2f // Shrink starts when near 20% from top or bottom
+
+        override fun onLayoutFinished(child: View, parent: RecyclerView) {
+            val itemCount = parent.adapter?.itemCount ?: 0
+
+            // If there are 1 or 2 items, skip shrink effect
+            if (itemCount == 2) {
+
+                return
+            }
+
+            val parentHeight = parent.height
+            val childCenterY = (child.top + child.bottom) / 2f
+
+            val topThreshold = parentHeight * shrinkEdgeThreshold
+            val bottomThreshold = parentHeight * (1 - shrinkEdgeThreshold)
+
+            val scale = when {
+                childCenterY < topThreshold -> {
+                    val distanceRatio = 1 - (childCenterY / topThreshold)
+                    val scaled = 1f - maxShrinkAmount * distanceRatio
+                    scaled.coerceIn(0.85f, 1f)
+                }
+                childCenterY > bottomThreshold -> {
+                    val distanceRatio = (childCenterY - bottomThreshold) / (parentHeight - bottomThreshold)
+                    val scaled = 1f - maxShrinkAmount * distanceRatio
+                    scaled.coerceIn(0.85f, 1f)
+                }
+                else -> 1f
+            }
+
+            child.scaleX = scale
+            child.scaleY = scale
+        }
+
+    }
+
     private fun initRecyclerViewCompass() {
         adapterDog = DogAdapter(dogs) { selectedDog ->
             handleDogSelection(selectedDog)
         }
         binding.recyclerviewDogCompass.apply {
             adapter = adapterDog
-            layoutManager = LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
+            layoutManager = WearableLinearLayoutManager(requireContext(), CustomScrollingLayoutCallback()
+            )
             isNestedScrollingEnabled = false
         }
-        (binding.recyclerviewDogCompass.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
+       // (binding.recyclerviewDogCompass.itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = false
     }
 
     @SuppressLint("SuspiciousIndentation")
@@ -210,6 +255,7 @@ class FragmentCompass : BaseFragment<FragmentCompassBinding>() {
             withContext(Dispatchers.Main) {
                 if (isAdded) {
                     notifyDogPointer()
+                    adapterDog!!.notifyDataSetChanged()
                 }
             }
         }

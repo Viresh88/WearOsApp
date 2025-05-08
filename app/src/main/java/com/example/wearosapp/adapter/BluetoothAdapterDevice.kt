@@ -2,10 +2,13 @@ package com.example.wearosapp.adapter
 
 import android.annotation.SuppressLint
 import android.graphics.Color
+import android.graphics.drawable.RippleDrawable
+import android.view.GestureDetector
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.wearosapp.R
 import com.example.wearosapp.databinding.ItemBluetoothBinding
@@ -16,6 +19,8 @@ class BluetoothAdapterDevice(
     private val itemClicked: (position: Int) -> Unit ,
     private val parameterClicked: (position: Int) -> Unit
 ) : RecyclerView.Adapter<BluetoothAdapterDevice.ViewHolder>() {
+    private var isScrolling = false
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val itemBluetoothDeviceBinding = ItemBluetoothBinding.inflate(
@@ -26,36 +31,64 @@ class BluetoothAdapterDevice(
         return ViewHolder(itemBluetoothDeviceBinding, itemClicked, parameterClicked)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    @SuppressLint("ClickableViewAccessibility")
+    override fun onBindViewHolder(holder: ViewHolder, @SuppressLint("RecyclerView") position: Int) {
         val item = data[position]
         holder.itemDevice(item)
+
+        val gestureDetector = GestureDetector(holder.binding.main.context, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+                itemClicked(position)
+                return true
+            }
+        })
+
+        holder.binding.main.isClickable = true
+        holder.binding.main.isFocusable = true
+        //holder.binding.main.expa(20)
+
+        if (!isScrolling) {
+            holder.itemView.setOnTouchListener { _, event ->
+                if (event.action == MotionEvent.ACTION_UP) {
+                    itemClicked(position)
+                    return@setOnTouchListener true
+                }
+                false
+            }
+        }
+
+
+
+        holder.binding.bluetoothSettingsIcon.setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_DOWN) {
+                parameterClicked(position)
+                return@setOnTouchListener true
+            }
+            false
+        }
     }
 
     override fun getItemCount(): Int {
         return data.size
     }
 
+    fun setScrolling(scrolling: Boolean) {
+        isScrolling = scrolling
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     class ViewHolder(
-        private val binding: ItemBluetoothBinding,
+        val binding: ItemBluetoothBinding,
         private val itemClicked: (position: Int) -> Unit,
         private val parameterClicked: (position: Int) -> Unit
-    ) : RecyclerView.ViewHolder(binding.root), View.OnClickListener {
+    ) : RecyclerView.ViewHolder(binding.root) {
 
         private var connectStatus = ""
         private var color = ""
 
-        init {
-            itemView.setOnClickListener(this)
 
-            binding.bluetoothSettingsIcon.setOnTouchListener { _, event ->
-                if (event.action == MotionEvent.ACTION_DOWN) {
-                    parameterClicked(bindingAdapterPosition)
-                    return@setOnTouchListener true // consume the touch
-                }
-                false
-            }
-        }
+
+
 
 
         fun itemDevice(result: Device) {
@@ -90,11 +123,6 @@ class BluetoothAdapterDevice(
             }
         }
 
-        override fun onClick(view: View?) {
-            val position = bindingAdapterPosition
-            view?.let {
-                itemClicked(position)
-            }
-        }
+
     }
 }

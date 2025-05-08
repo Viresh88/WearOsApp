@@ -30,9 +30,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        BluetoothManagerClass.disconnect()  // This will call callbacks to mark disconnection.
+     //   BluetoothManagerClass.disconnect()  // This will call callbacks to mark disconnection.
         // Optionally clear shared preferences:
-        SharedPreferencesUtils.putString(this, "LastConnectedDevice", "")
+        //SharedPreferencesUtils.putString(this, "LastConnectedDevice", "")
         val navHostFragment = supportFragmentManager
             .findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navController = navHostFragment.navController

@@ -53,11 +53,8 @@ class DogAdapter(
                 handleSave(dog)
             }
 
-            // Hide the whole item if the dog's location is not valid.
-            if (dog.latitude == 0.0 && dog.longitude == 0.0) {
-                binding.itemContainer.visibility = View.GONE
-            } else {
-                binding.itemContainer.visibility = View.VISIBLE
+
+
 
                 // Set dog image (using your getDogIconBitmapWithStatus implementation)
                 val (bitmap, position) = dog.getDogIconBitmapWithStatus(context)
@@ -78,7 +75,7 @@ class DogAdapter(
 
                 // Display online dog information (name, power, time, distance)
                 showOnlineDogInfo(dog)
-            }
+
         }
 
         @SuppressLint("SetTextI18n")
@@ -87,15 +84,11 @@ class DogAdapter(
             binding.textviewDogPower.text = "${dog.power}%"
             binding.textviewTime.text = getCurrentFormattedTime()
 
-            // Only display the distance if the dog's coordinates are valid.
-            if (dog.latitude == 0.0 && dog.longitude == 0.0) {
-                binding.itemContainer.visibility = View.GONE
-            } else {
-                // Calculate and display the distance regardless of selection state.
-                val distance = calculateDistance(dog)
-                binding.textviewDistance.text = distance
-                binding.textviewDistance.visibility = View.VISIBLE
-            }
+
+            val distance = calculateDistance(dog)
+            binding.textviewDistance.text = distance
+            binding.textviewDistance.visibility = View.VISIBLE
+
         }
 
         fun getCurrentFormattedTime(): String {
@@ -107,8 +100,7 @@ class DogAdapter(
         private fun calculateDogSpeed(dog: Dog): String {
             val currentTime = System.currentTimeMillis()
             // Check that both the current and previous positions are valid.
-            if (dog.latitude != 0.0 && dog.longitude != 0.0 &&
-                dog.latitude != 0.0 && dog.longitude != 0.0) {
+            if (dog.latitude != 0.0 && dog.longitude != 0.0) {
 
                 val currentDogLocation = Location("Dog").apply {
                     latitude = dog.latitude

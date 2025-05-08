@@ -55,7 +55,7 @@
                 <!-- RecyclerView immediately following compass -->
                 <androidx.wear.widget.WearableRecyclerView
                     android:id="@+id/recyclerview_dog_compass"
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:contentDescription="@string/compass"
                     app:layout_constraintBottom_toBottomOf="parent"
