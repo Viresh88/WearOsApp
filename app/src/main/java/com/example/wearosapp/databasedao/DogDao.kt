@@ -29,4 +29,5 @@ interface DogDao {
     @Query("DELETE FROM dog_table")
     fun deleteAllDogs()
 
+
 }

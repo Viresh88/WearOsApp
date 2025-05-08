@@ -5,6 +5,9 @@ import android.view.MenuItem
 import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -14,6 +17,7 @@ import com.example.wearosapp.eventbus.Move2MapFragmentEventBus
 import com.example.wearosapp.injection.Injection
 import com.example.wearosapp.injection.ViewModelFactory
 import com.example.wearosapp.model.Device
+import com.example.wearosapp.model.Dog
 import com.example.wearosapp.ui.utils.SharedPreferencesUtils
 import com.example.wearosapp.viewmodel.DogViewModel
 import org.greenrobot.eventbus.EventBus
@@ -24,6 +28,7 @@ class MainActivity : AppCompatActivity() {
     private var viewModel: DogViewModel? = null
     private var bluetooth: MenuItem? = null
     private val deviceMutableList = ArrayList<Device>()
+    private var dogs = ArrayList<Dog>()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,11 +43,48 @@ class MainActivity : AppCompatActivity() {
         navController = navHostFragment.navController
         configureViewModel()
         BluetoothManagerClass.initializeBluetooth(this)
+        getDevicesFromDatabase()
         window.decorView.systemUiVisibility =
             View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
         actionBar?.hide()
         enableEdgeToEdge()
     }
+
+    private fun <T> LiveData<T>.observeOnce(owner: LifecycleOwner, observer: Observer<T>) {
+        observe(owner, object : Observer<T> {
+            override fun onChanged(value: T) {
+                observer.onChanged(value)
+                removeObserver(this)
+            }
+        })
+    }
+
+    private fun getDevicesFromDatabase() {
+        viewModel?.getAllDevices()?.observeOnce(this) { devices ->
+            deviceMutableList.clear()
+            deviceMutableList.addAll(devices.map { it.apply { status = false } })
+            updateStatus()
+        }
+    }
+
+
+    override fun onDestroy() {
+        super.onDestroy()
+        //unregisterReceiver(broadcastReceiver)
+        updateStatus()
+        //bindingT = null
+    }
+
+
+    private fun updateStatus() {
+        deviceMutableList.forEach { device ->
+            device.bluetoothStatus = getString(R.string.disconnect)
+            device.status = false
+            viewModel?.updateDevice(device)
+            BluetoothManagerClass.disconnect()
+        }
+    }
+
 
     override fun onStart() {
         super.onStart()

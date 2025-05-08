@@ -36,26 +36,16 @@ class BluetoothAdapterDevice(
         val item = data[position]
         holder.itemDevice(item)
 
-        val gestureDetector = GestureDetector(holder.binding.main.context, object : GestureDetector.SimpleOnGestureListener() {
-            override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
-                itemClicked(position)
-                return true
-            }
-        })
-
         holder.binding.main.isClickable = true
         holder.binding.main.isFocusable = true
-        //holder.binding.main.expa(20)
+        holder.binding.imageViewBluetooth.setOnCheckedChangeListener(null)
+        //holder.binding.imageViewBluetooth.isChecked = item.isChecked
 
-        if (!isScrolling) {
-            holder.itemView.setOnTouchListener { _, event ->
-                if (event.action == MotionEvent.ACTION_UP) {
-                    itemClicked(position)
-                    return@setOnTouchListener true
-                }
-                false
-            }
+        holder.binding.imageViewBluetooth.setOnCheckedChangeListener { _, isChecked ->
+            itemClicked(position)
         }
+
+
 
 
 
@@ -118,7 +108,7 @@ class BluetoothAdapterDevice(
             binding.connectStatus.text = connectStatus
 
             if (color.isNotEmpty()) {
-                binding.imageViewBluetooth.setColorFilter(Color.parseColor(color))
+                //binding.imageViewBluetooth.setColorFilter(Color.parseColor(color))
                 binding.connectStatus.setTextColor(Color.parseColor(color))
             }
         }

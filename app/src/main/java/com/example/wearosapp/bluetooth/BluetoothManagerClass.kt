@@ -185,9 +185,13 @@ object BluetoothManagerClass {
             gatt.disconnect()
             gatt.close()
             deviceGattMap.remove(bleDevice)
+            // Clear the current device info so that a new connection will not show old data.
+            SharedPreferencesUtils.putString(context, "LastConnectedDevice", "")
             bluetoothEventCallbacks.forEach { callback ->
                 callback.onDisconnected(false, bleDevice)
             }
+
+            bleDevice = null
         }
     }
 
@@ -228,12 +232,12 @@ object BluetoothManagerClass {
                 newState: Int
             ) {
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
-                    //val macAddress = SharedPreferencesUtils.getString(this@BluetoothManagerClass.context , "LastConnectedDevice" ?: "", "")
-
+                    val macAddress = SharedPreferencesUtils.getString(this@BluetoothManagerClass.context , "LastConnectedDevice" ?: "", "")
+                    if (!macAddress.isNullOrEmpty()) {
                         bluetoothEventCallbacks.forEach {
                             it.onConnectDeviceSuccess(bleDevice)
                         }
-
+                    }
                     gatt?.discoverServices()
 
                 } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {

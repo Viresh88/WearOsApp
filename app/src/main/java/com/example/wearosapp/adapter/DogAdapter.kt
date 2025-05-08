@@ -132,11 +132,12 @@ class DogAdapter(
 
         private fun calculateDistance(dog: Dog): String {
             val currentLocation = this@DogAdapter.currentLocation
-            if (currentLocation != null) {
-                val dogLocation = Location("Dog").apply {
-                    latitude = dog.latitude
-                    longitude = dog.longitude
-                }
+            val dogLocation = Location("Dog").apply {
+                latitude = dog.latitude
+                longitude = dog.longitude
+            }
+            if (currentLocation != null && dogLocation.latitude!=0.0) {
+
                 val results = FloatArray(1)
                 Location.distanceBetween(
                     currentLocation.latitude,
