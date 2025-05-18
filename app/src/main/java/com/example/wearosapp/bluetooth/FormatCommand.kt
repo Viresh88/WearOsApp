@@ -69,6 +69,8 @@ object FormatCommand {
         if (data.contains("Pass#0" , true)) {
             onFormatData?.onCorrectPassword()
         }
+
+
         if (data.contains("Pass#1" , true)) {
             onFormatData?.onIncorrectPassword()
         }
@@ -91,6 +93,9 @@ object FormatCommand {
         val head = data.substring(0 , indexOf)
         dataList.add(head)
 
+        if (data.contains("Rename#" , true)) {
+            onFormatData?.onRename(dataList)
+        }
 
         when (head) {
             KeyCommand.VER -> {

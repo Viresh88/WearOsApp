@@ -34,7 +34,10 @@ class BluetoothAdapterDevice(
     @SuppressLint("ClickableViewAccessibility")
     override fun onBindViewHolder(holder: ViewHolder, @SuppressLint("RecyclerView") position: Int) {
         val item = data[position]
-        holder.itemDevice(item)
+        if(item.name!!.isNotEmpty()){
+            holder.itemDevice(item)
+        }
+
 
         holder.binding.main.isClickable = true
         holder.binding.main.isFocusable = true
@@ -86,21 +89,27 @@ class BluetoothAdapterDevice(
                 itemView.context.getString(R.string.connect_fail) -> {
                     connectStatus = itemView.context.getString(R.string.connect_fail)
                     color = "#FF0000"
+                    binding.imageViewBluetooth.isChecked = false
                 }
 
                 itemView.context.getString(R.string.connecting) -> {
                     connectStatus = itemView.context.getString(R.string.connecting)
                     color = "#FFA500"
+                    binding.imageViewBluetooth.setOnCheckedChangeListener(null)
+                    binding.imageViewBluetooth.isChecked = false
                 }
 
                 itemView.context.getString(R.string.connected) -> {
                     connectStatus = itemView.context.getString(R.string.connected)
                     color = "#008000"
+                    binding.imageViewBluetooth.setOnCheckedChangeListener(null)
+                    binding.imageViewBluetooth.isChecked = true
                 }
 
                 itemView.context.getString(R.string.disconnect) -> {
                     connectStatus = itemView.context.getString(R.string.disconnect)
                     color = "#000000"
+                    binding.imageViewBluetooth.isChecked = false
                 }
             }
 

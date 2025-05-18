@@ -150,21 +150,21 @@ class FragmentCompass : BaseFragment<FragmentCompassBinding>() {
     }
 
     private fun getDogInData() {
-
-            viewModel?.getAllDogs()?.observe(viewLifecycleOwner) { dog ->
+        if (BluetoothManagerClass.isConnected()) {
+            viewModel?.getAllDogs()?.observe(viewLifecycleOwner) { dogs ->
 
                 // Optionally, you can filter dogs here (e.g., check for valid coordinates)
-
+                val filteredDogs = dogs.filter { it.isOnline && it.latitude != 0.0 && it.longitude != 0.0 }
                 CoroutineScope(Dispatchers.IO).launch {
                     withContext(Dispatchers.Main) {
                         this@FragmentCompass.dogs.clear()
-                        this@FragmentCompass.dogs.addAll(dog)
+                        this@FragmentCompass.dogs.addAll(filteredDogs)
                         notifyDogPointer()
                         adapterDog!!.notifyDataSetChanged()
                     }
                 }
             }
-
+        }
     }
 
     private fun updateDogSelectionInDatabase(dogs: MutableList<Dog>) {

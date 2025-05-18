@@ -228,13 +228,14 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
         scanResultAdapter = BluetoothAdapterDevice(scanResults,
             itemClicked = { position ->
                 Toast.makeText(requireContext(), "Please wait...", Toast.LENGTH_SHORT).show()
-                val macAddress = SharedPreferencesUtils.getString(requireContext() , "LastConnectedDevice" ?: "", "")
-                if(macAddress == scanResults.getOrNull(position)!!.address){
-                    returnToMainScreen()
-                }else{
-
-                    connectToDevice(position)
-                }
+                //val macAddress = SharedPreferencesUtils.getString(requireContext() , "LastConnectedDevice" ?: "", "")
+//                if(macAddress == scanResults.getOrNull(position)!!.address){
+//                    returnToMainScreen()
+//                }else{
+//
+//
+//                }
+                connectToDevice(position)
                 selectedPosition = position
             },
             parameterClicked = { position ->
@@ -273,21 +274,10 @@ class FragmentBluetooth : BaseFragment<FragmentBluetoothBinding>() {
         CoroutineScope(Dispatchers.Main).launch {
             val device = scanResults.getOrNull(position)
             device?.let {
-                val newStatus = !it.status
-                it.status = newStatus
-                if (newStatus) {
-                    device.address?.let { address ->
+                device.address?.let { address ->
                         BluetoothManagerClass.connect(address)
                     }
-                    delay(1000)
-                    it.status = false
-                } else {
-                    device.address?.let {
-                        BluetoothManagerClass.disconnect()
-                    }
-                }
             }
-            scanResultAdapter?.notifyDataSetChanged()
         }
     }
 
